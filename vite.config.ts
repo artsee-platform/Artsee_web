@@ -11,7 +11,7 @@ export default defineConfig(({mode}) => {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
       'process.env.SUPABASE_URL': JSON.stringify(env.SUPABASE_URL || env.VITE_SUPABASE_URL || ''),
       'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY || ''),
-      'process.env.SUPABASE_INSTITUTIONS_TABLE': JSON.stringify(env.SUPABASE_INSTITUTIONS_TABLE || 'institutions'),
+      'process.env.SUPABASE_INSTITUTIONS_TABLE': JSON.stringify(env.SUPABASE_INSTITUTIONS_TABLE || 'schools'),
     },
     resolve: {
       alias: {

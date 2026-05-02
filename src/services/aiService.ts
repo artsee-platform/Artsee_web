@@ -1,7 +1,11 @@
 import { GoogleGenAI } from "@google/genai";
 import { MOCK_POSTS, MOCK_SCHOOLS } from "../data";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const apiKey = process.env.GEMINI_API_KEY;
+const getAI = () => {
+  if (!apiKey) return null;
+  return new GoogleGenAI({ apiKey });
+};
 
 const SYSTEM_INSTRUCTION = `
 You are the "artiqore AI Assistant", a specialist in the artiqore platform. 
@@ -34,6 +38,11 @@ Available Navigation Routes (mention these if helpful):
 
 export async function chatWithAI(messages: { role: 'user' | 'model', text: string }[]) {
   try {
+    const ai = getAI();
+    if (!ai) {
+      return "AI 服务尚未配置密钥，主页面仍可正常使用。";
+    }
+
     const history = messages.slice(0, -1).map(m => ({
       role: m.role,
       parts: [{ text: m.text }]
@@ -60,6 +69,11 @@ export async function chatWithAI(messages: { role: 'user' | 'model', text: strin
 
 export async function analyzeInstitutions(institutions: any[]) {
   try {
+    const ai = getAI();
+    if (!ai) {
+      return "AI 决策顾问尚未配置密钥，暂时无法生成分析报告。";
+    }
+
     const dataStr = JSON.stringify(institutions.map(s => ({
       name: s.name,
       rank: s.rank,
