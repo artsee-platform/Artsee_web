@@ -1,15 +1,43 @@
 import { GoogleGenAI } from "@google/genai";
-import { MOCK_POSTS, MOCK_SCHOOLS } from "../data";
+import { MOCK_POSTS } from "../data";
+import { loadInstitutionData } from "./institutionsService";
 
 const apiKey = process.env.GEMINI_API_KEY;
+const modelName = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 const getAI = () => {
   if (!apiKey) return null;
   return new GoogleGenAI({ apiKey });
 };
 
-const SYSTEM_INSTRUCTION = `
-You are the "artiqore AI Assistant", a specialist in the artiqore platform. 
-artiqore is an high-end art and design social platform connecting artists, institutions, brands, and students.
+export interface AIChatMessage {
+  role: 'user' | 'model';
+  text: string;
+}
+
+const getInstitutionKnowledge = async () => {
+  const data = await loadInstitutionData();
+
+  return Object.entries(data)
+    .flatMap(([region, schools]) =>
+      schools.map(school => ({
+        name: school.name,
+        en: school.originalName,
+        region,
+        location: school.location,
+        rank: school.rank,
+        strengths: school.majorStrengths,
+        description: school.description,
+      }))
+    )
+    .slice(0, 120);
+};
+
+const buildSystemInstruction = async () => {
+  const institutions = await getInstitutionKnowledge();
+
+  return `
+You are "意见 AI", the LLM chatbot for 艺见心 / artiqore.
+artiqore is a high-end art and design platform connecting artists, institutions, brands, and students.
 
 PLATFORM CONTENT OVERVIEW:
 - Art Academies: We provide detailed information on top schools like RCA (Royal College of Art), RISD, CSM (Central Saint Martins).
@@ -18,15 +46,16 @@ PLATFORM CONTENT OVERVIEW:
 - Circles & Salons: Professional communities and offline luxury social events.
 
 KNOWLEDGE BASE:
-Schools: ${JSON.stringify(MOCK_SCHOOLS.map(s => ({ name: s.name, en: s.enName, country: s.country, tags: s.tags })))}
+Schools from the connected institution database: ${JSON.stringify(institutions)}
 Recent Posts: ${JSON.stringify(MOCK_POSTS.map(p => ({ author: p.author.name, type: p.type, content: p.content.substring(0, 50) + "..." })))}
 
 YOUR GOALS:
 1. Help users navigate the platform (suggest looking at schools, exhibitions, or current opportunities).
-2. Answer questions about art academies provided in the knowledge base.
-3. Be professional, sophisticated, and artistic. 
-4. Keep responses concise and use a mix of Chinese (primary) and English (artistic terms) as seen in the UI.
-5. If you don't know something about the specific data, answer generally based on the art world but mention that users can explore more in the respective sections.
+2. Answer questions about art academies using the connected school database when possible.
+3. Be professional, warm, sophisticated, and artistic.
+4. Reply primarily in Chinese. Use English only for proper nouns, school names, and artistic terms that read naturally in the UI.
+5. Keep answers concise by default, but provide structured guidance when users ask for comparisons, planning, or strategy.
+6. If the connected data is not enough, say what is missing instead of inventing exact facts.
 
 Available Navigation Routes (mention these if helpful):
 - 首页 (Home): Feed, Banner, Gallery
@@ -35,27 +64,40 @@ Available Navigation Routes (mention these if helpful):
 - 俱乐部 (Club): High-end experiences, Private events
 - 我的 (Me): User profile, Artist dashboard
 `;
+};
 
-export async function chatWithAI(messages: { role: 'user' | 'model', text: string }[]) {
+export async function chatWithAI(messages: AIChatMessage[]) {
   try {
     const ai = getAI();
     if (!ai) {
-      return "AI 服务尚未配置密钥，主页面仍可正常使用。";
+      return "意见 AI 的模型密钥还没有配置。主页面可以继续使用；配置 GEMINI_API_KEY 后，我就能切换为真实模型回复。";
     }
 
-    const history = messages.slice(0, -1).map(m => ({
-      role: m.role,
-      parts: [{ text: m.text }]
-    }));
+    const conversation = messages.filter(message => message.text.trim());
+    const latestMessage = conversation[conversation.length - 1];
+
+    if (!latestMessage || latestMessage.role !== 'user') {
+      return "请先输入一个问题，我会基于艺见心的院校库和艺术留学语境来回答。";
+    }
+
+    const history = conversation
+      .slice(0, -1)
+      .filter((message, index) => !(index === 0 && message.role === 'model'))
+      .map(m => ({
+        role: m.role,
+        parts: [{ text: m.text }]
+      }));
+
+    const systemInstruction = await buildSystemInstruction();
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: modelName,
       contents: [
         ...history,
-        { role: 'user', parts: [{ text: messages[messages.length - 1].text }] }
+        { role: 'user', parts: [{ text: latestMessage.text }] }
       ],
       config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+        systemInstruction,
         temperature: 0.7,
       },
     });
@@ -101,7 +143,7 @@ export async function analyzeInstitutions(institutions: any[]) {
     `;
 
     const result = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: modelName,
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         systemInstruction: "You are the artiqore AI Strategic Consultant. Specialist in elite global art school placement and decision modeling.",

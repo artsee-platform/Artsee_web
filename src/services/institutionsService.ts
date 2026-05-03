@@ -5,8 +5,81 @@ type InstitutionRow = Record<string, any>;
 
 const tableName = process.env.SUPABASE_INSTITUTIONS_TABLE || 'schools';
 
+const regionLabelMap: Record<string, string> = {
+  other_south_america: '其他南美国家',
+  us_midwest_flagship: '美国中西部旗舰',
+  us_south_southwest: '美国南方与西南',
+  other_europe: '其他欧洲国家',
+  us_california_flagship: '美国加州旗舰',
+  us_northeast_top: '美国东北强校',
+  other_africa: '其他非洲国家',
+  nordics: '北欧',
+  other_asia: '其他亚洲国家',
+};
+
+const countryCodeLabelMap: Record<string, string> = {
+  AR: '阿根廷',
+  AU: '澳大利亚',
+  BR: '巴西',
+  CA: '加拿大',
+  CD: '刚果（金）',
+  CI: '科特迪瓦',
+  CL: '智利',
+  CN: '中国',
+  CO: '哥伦比亚',
+  CR: '哥斯达黎加',
+  CU: '古巴',
+  DE: '德国',
+  DZ: '阿尔及利亚',
+  EG: '埃及',
+  ET: '埃塞俄比亚',
+  FI: '芬兰',
+  FR: '法国',
+  GB: '英国',
+  GH: '加纳',
+  GT: '危地马拉',
+  HN: '洪都拉斯',
+  ID: '印度尼西亚',
+  IN: '印度',
+  IT: '意大利',
+  JP: '日本',
+  KE: '肯尼亚',
+  KR: '韩国',
+  MA: '摩洛哥',
+  ML: '马里',
+  MU: '毛里求斯',
+  MX: '墨西哥',
+  NG: '尼日利亚',
+  NI: '尼加拉瓜',
+  NL: '荷兰',
+  NO: '挪威',
+  NZ: '新西兰',
+  PA: '巴拿马',
+  PL: '波兰',
+  PR: '波多黎各',
+  SD: '苏丹',
+  SE: '瑞典',
+  SG: '新加坡',
+  SN: '塞内加尔',
+  SV: '萨尔瓦多',
+  TH: '泰国',
+  TN: '突尼斯',
+  TZ: '坦桑尼亚',
+  UG: '乌干达',
+  US: '美国',
+  ZA: '南非',
+  ZM: '赞比亚',
+  ZW: '津巴布韦',
+};
+
 const firstValue = (...values: unknown[]) => {
   return values.find(value => value !== undefined && value !== null && value !== '');
+};
+
+const toRegionLabel = (value: unknown): string | undefined => {
+  if (value === undefined || value === null || value === '') return undefined;
+  const key = String(value).trim();
+  return regionLabelMap[key] || countryCodeLabelMap[key.toUpperCase()] || key;
 };
 
 const toStringArray = (value: unknown): string[] | undefined => {
@@ -67,7 +140,22 @@ const mapInstitutionRow = (row: InstitutionRow): { region: string; institution: 
   const country = firstValue(row.country, row.country_name, row.countryName, row.raw_country, row.rawCountry, row.country_code);
   const city = firstValue(row.city, row.city_name, row.cityName);
   const location = String(firstValue(row.location, [city, country].filter(Boolean).join(', '), country, '未知地区'));
-  const region = String(firstValue(row.region, row.area, row.market, row.region_tag, row.regionTag, row.raw_country, row.rawCountry, country, '其他'));
+  const region = String(
+    firstValue(
+      toRegionLabel(row.raw_country),
+      toRegionLabel(row.rawCountry),
+      toRegionLabel(row.country),
+      toRegionLabel(row.country_name),
+      toRegionLabel(row.countryName),
+      toRegionLabel(row.region),
+      toRegionLabel(row.area),
+      toRegionLabel(row.market),
+      toRegionLabel(row.region_tag),
+      toRegionLabel(row.regionTag),
+      toRegionLabel(row.country_code),
+      '其他'
+    )
+  );
   const id = String(firstValue(row.id, row.uuid, row.slug, row.name_zh, row.name, row.name_en, crypto.randomUUID()));
   const campusImages = toStringArray(firstValue(row.campus_image_urls, row.campusImageUrls));
 

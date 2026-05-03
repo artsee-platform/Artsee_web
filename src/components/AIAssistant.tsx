@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, Minus, Bot, MessageSquare, Terminal } from 'lucide-react';
+import { Sparkles, X, Send, Minus, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { chatWithAI } from '../services/aiService';
@@ -12,7 +12,7 @@ interface Message {
 export const AIAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: '你好！我是 artiqore AI 助手。有什么我可以帮你的吗？不管是查看院校、艺术资讯还是平台导航，我都在这里。' }
+    { role: 'model', text: '你好！我是意见 AI 助手。有什么我可以帮你的吗？不管是查看院校、艺术资讯还是平台导航，我都在这里。' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +101,7 @@ export const AIAssistant: React.FC = () => {
                   <Bot size={20} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold tracking-tight italic">artiqore AI</h3>
+                  <h3 className="text-sm font-bold tracking-tight italic">意见 AI</h3>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     <span className="text-[9px] text-white/40 uppercase tracking-widest font-black">Intelligent Concierge</span>

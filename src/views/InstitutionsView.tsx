@@ -90,7 +90,7 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
                   setSearchQuery(""); 
                 }}
                 className={cn(
-                  "px-4 py-2 rounded-lg text-[8px] md:text-[11px] font-bold uppercase tracking-[0.1em] transition-all",
+                  "px-4 py-2 rounded-lg text-[8px] md:text-[11px] font-bold tracking-normal transition-all",
                   activeRegion === region && !searchQuery.trim()
                     ? "bg-white text-cobalt shadow-sm" 
                     : "text-ink/40 hover:text-ink hover:bg-white/50"

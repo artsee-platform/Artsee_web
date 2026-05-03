@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Sparkles, Send, User, ChevronLeft, Bot, MessageSquare, Zap, Globe, BookOpen, Search, ArrowUpRight } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Sparkles, Send, User, ChevronLeft, Bot, Zap, BookOpen, Search, ArrowUpRight } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { chatWithAI } from '../services/aiService';
 
 interface Message {
   id: string;
@@ -20,16 +21,18 @@ export const AIGuideView = ({ initialPrompt = '', onBack }: AIGuideViewProps) =>
     {
       id: '1',
       role: 'assistant',
-      content: '您好！我是 Articqore AI 指导顾问。在此，我将为您深度解析艺术留学、作品集规划以及全球艺术院校的申请策略。请问今天有什么我可以帮到您的？',
+      content: '您好！我是意见 AI 指导顾问。在此，我将为您深度解析艺术留学、作品集规划以及全球艺术院校的申请策略。请问今天有什么我可以帮到您的？',
       timestamp: new Date().toLocaleTimeString(),
     }
   ]);
   const [input, setInput] = useState(initialPrompt);
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const initialPromptSentRef = useRef(false);
 
   useEffect(() => {
-    if (initialPrompt) {
+    if (initialPrompt && !initialPromptSentRef.current) {
+      initialPromptSentRef.current = true;
       handleSend(initialPrompt);
     }
   }, []);
@@ -41,7 +44,7 @@ export const AIGuideView = ({ initialPrompt = '', onBack }: AIGuideViewProps) =>
   }, [messages, isTyping]);
 
   const handleSend = async (content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || isTyping) return;
 
     const userMsg: Message = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -50,21 +53,29 @@ export const AIGuideView = ({ initialPrompt = '', onBack }: AIGuideViewProps) =>
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const nextMessages = [...messages, userMsg];
+    setMessages(nextMessages);
     setInput('');
     setIsTyping(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const aiResponse = await chatWithAI(
+        nextMessages.map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          text: msg.content,
+        }))
+      );
+
       const assistantMsg: Message = {
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         role: 'assistant',
-        content: `针对您关于“${content}”的问题，我已基于全球 200+ 顶尖艺校的最新数据为您生成了深度分析建议。在艺术创作与留学的路径上，建议您重点关注院校背景与个人风格的契合度，并持续打磨作品的核心叙事能力。`,
+        content: aiResponse,
         timestamp: new Date().toLocaleTimeString(),
       };
       setMessages(prev => [...prev, assistantMsg]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const suggestions = [
@@ -82,7 +93,7 @@ export const AIGuideView = ({ initialPrompt = '', onBack }: AIGuideViewProps) =>
           <ChevronLeft size={24} />
         </button>
         <div className="flex flex-col items-center">
-          <span className="text-xs font-serif font-black italic text-ink">artiqore AI</span>
+          <span className="text-xs font-serif font-black italic text-ink">意见 AI</span>
           <span className="text-[9px] text-ink/40 font-black uppercase tracking-widest">Guide Assistant</span>
         </div>
         <div className="w-10 h-10 rounded-full bg-porcelain flex items-center justify-center">
@@ -136,7 +147,7 @@ export const AIGuideView = ({ initialPrompt = '', onBack }: AIGuideViewProps) =>
                    <Bot size={20} />
                 </div>
                 <div>
-                   <h3 className="text-sm font-bold text-ink italic">Articqore LLM-4</h3>
+                   <h3 className="text-sm font-bold text-ink italic">意见 AI</h3>
                    <div className="flex items-center gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                       <span className="text-[9px] text-ink/50 uppercase font-black">System Online • Ultra Response</span>
