@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Sparkles, Send, User, ChevronLeft, Bot, Zap, BookOpen, Search, ArrowUpRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { chatWithAI } from '../services/aiService';
+import { MarkdownMessage } from '../components/MarkdownMessage';
 
 interface Message {
   id: string;
@@ -196,7 +197,7 @@ export const AIGuideView = ({ initialPrompt = '', onBack }: AIGuideViewProps) =>
                       ? "bg-porcelain/50 text-ink rounded-tr-none border border-silver/20 italic" 
                       : "bg-white text-ink/90 rounded-tl-none border border-silver/30 shadow-[0_10px_40px_-20px_rgba(30,58,138,0.1)]"
                   )}>
-                    {msg.content}
+                    {msg.role === 'assistant' ? <MarkdownMessage content={msg.content} /> : msg.content}
                   </div>
                   <span className="text-[9px] text-ink/40 uppercase font-black tracking-widest px-1">{msg.timestamp}</span>
                 </div>

@@ -3,6 +3,7 @@ import { Sparkles, X, Send, Minus, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { chatWithAI } from '../services/aiService';
+import { MarkdownMessage } from './MarkdownMessage';
 
 interface Message {
   role: 'user' | 'model';
@@ -138,7 +139,7 @@ export const AIAssistant: React.FC = () => {
                       ? "bg-ink text-porcelain rounded-br-none shadow-sm" 
                       : "bg-white text-ink rounded-bl-none shadow-sm border border-silver/30"
                   )}>
-                    {msg.text}
+                    {msg.role === 'model' ? <MarkdownMessage content={msg.text} /> : msg.text}
                   </div>
                 </motion.div>
               ))}
