@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, BookOpen, GraduationCap, Building2, Briefcase, ChevronRight, Target, Sparkles, Star, Zap, ArrowRight } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { X, GraduationCap, Briefcase, ChevronRight, Target, Sparkles, Star, Zap, ArrowRight } from 'lucide-react';
+import { cn, preferCjkRichText } from '../lib/utils';
 import { MajorSectionDetail } from './MajorSectionDetails';
 import { InstitutionProgram } from '../data/programs';
 
@@ -21,38 +21,52 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName, program }: Major
     program?.minimumEducation ? `最低背景：${program.minimumEducation}` : undefined,
   ].filter(Boolean) as string[];
 
-  const heroStatement = program?.highlights?.[0] || program?.overview || "该专业详情正在接入数据库内容，后续会补充课程结构、申请要求与职业路径。";
+  const heroStatement = preferCjkRichText(
+    '该专业详情正在接入数据库内容，后续会补充课程结构、申请要求与职业路径。',
+    program?.overview,
+    program?.highlights?.[0],
+    program?.description,
+    program?.admissionSummary
+  );
+  const admissionLead = preferCjkRichText('', program?.admissionSummary, program?.overview).trim();
   const admissionItems = [
-    ...(program?.admissionSummary ? [program.admissionSummary] : []),
-    ...(requirementItems.length ? requirementItems : []),
+    ...(admissionLead ? [admissionLead] : []),
+    ...requirementItems,
     ...(program?.careerPaths?.length ? program.careerPaths : []),
   ];
+
+  const philosophyBody = preferCjkRichText(
+    '该专业暂未接入完整介绍。',
+    program?.overview,
+    program?.description,
+    program?.highlights?.join('；')
+  );
 
   const sections = [
     {
       id: 'philosophy' as const,
-      title: "专业概览 / Overview",
+      title: '专业概览',
       icon: <Target size={18} />,
-      content: program?.overview || program?.description || "该专业暂未接入完整介绍。"
+      content: philosophyBody,
     },
     {
       id: 'curriculum' as const,
-      title: "专业亮点 / Highlights",
+      title: '专业亮点',
       icon: <GraduationCap size={18} />,
       list: program?.highlights?.length ? program.highlights : [
         program?.degreeFullName,
         program?.category,
         program?.duration,
         program?.studyMode,
-        program?.intakeMonths?.length ? `${program.intakeMonths.join(' / ')} 入学` : undefined,
-      ].filter(Boolean) as string[]
+        program?.intakeMonths?.length ? `${program.intakeMonths.join('、')} 入学` : undefined,
+      ].filter(Boolean) as string[],
     },
     {
       id: 'career' as const,
-      title: "申请与路径 / Admission",
+      title: '申请与升学路径',
       icon: <Briefcase size={18} />,
-      list: admissionItems.length ? admissionItems : ["该专业暂未接入申请细则。"]
-    }
+      list: admissionItems.length ? admissionItems : ['该专业暂未接入申请细则。'],
+    },
   ];
 
   if (!isOpen) return null;
@@ -70,7 +84,7 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName, program }: Major
            </button>
            
            <div className="space-y-2 md:space-y-4">
-              <span className="text-[9px] md:text-[10px] font-black text-cobalt uppercase tracking-[0.4em] italic">Major Handbook</span>
+              <span className="text-[9px] md:text-[10px] font-black text-cobalt tracking-[0.35em]">专业百科</span>
               <h2 className="text-xl md:text-3xl font-serif font-black italic text-ink leading-tight">{majorName}</h2>
               {program?.degreeFullName && (
                 <p className="text-[10px] md:text-xs text-ink/35 font-bold uppercase tracking-widest leading-relaxed">{program.degreeFullName}</p>
@@ -83,7 +97,7 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName, program }: Major
                  {[1, 2, 3, 4, 5].map(i => (
                     <Star key={i} size={14} className={cn("fill-cobalt text-cobalt", i > 4 && "opacity-20")} />
                  ))}
-                 <span className="text-xs font-serif font-bold italic ml-2">Hard</span>
+                 <span className="text-xs font-serif font-bold ml-2">难度较高</span>
               </div>
            </div>
         </div>
@@ -97,7 +111,7 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName, program }: Major
              >
                 <div className="flex items-center gap-4">
                    <div className="text-ink/20 group-hover:text-cobalt transition-colors">{s.icon}</div>
-                   <span className="text-[11px] font-bold uppercase tracking-widest">{s.title.split(' / ')[0]}</span>
+                   <span className="text-[11px] font-bold tracking-widest">{s.title}</span>
                 </div>
                 <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-all" />
              </button>
@@ -176,10 +190,15 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName, program }: Major
                <div className="relative z-10 space-y-8">
                   <div className="flex items-center gap-4">
                      <Sparkles className="text-cobalt" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.4em]">Pro Tips</span>
+                     <span className="text-[10px] font-black tracking-[0.35em]">申请锦囊</span>
                   </div>
-                  <h4 className="text-2xl md:text-4xl font-serif font-light italic leading-tight">
-                    {program?.admissionSummary || "想要获得该专业的青睐？你的作品集需要清楚呈现研究意识、创作过程与个人语言。"}
+                  <h4 className="text-2xl md:text-4xl font-serif font-light leading-tight">
+                    {preferCjkRichText(
+                      '想要获得该专业的青睐？你的作品集需要清楚呈现研究意识、创作过程与个人语言。',
+                      program?.admissionSummary,
+                      program?.overview,
+                      program?.highlights?.[0]
+                    )}
                   </h4>
                   <div className="flex flex-col md:flex-row gap-6 pt-6">
                      <button className="h-14 md:h-16 px-10 bg-white text-ink rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-cobalt hover:text-white transition-all shadow-xl">预约作品集解析</button>

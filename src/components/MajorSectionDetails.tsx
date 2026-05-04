@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronLeft, Target, GraduationCap, Briefcase, Star, Search, MapPin, TrendingUp, Globe, Sparkles, BookOpen, Quote, Layout, User } from 'lucide-react';
+import { X, ChevronLeft, Target, GraduationCap, Briefcase, MapPin, TrendingUp, Globe, Sparkles, Quote, Layout, User } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface SectionDetailProps {
@@ -25,7 +25,7 @@ const PhilosophyDetail = ({ majorName, onClose }: { majorName: string; onClose: 
             <Target size={40} className="md:w-12 md:h-12" />
           </div>
           <div className="space-y-4">
-            <span className="text-xs md:text-sm font-black uppercase tracking-[0.4em] text-white/40">Core Philosophy</span>
+            <span className="text-xs md:text-sm font-black tracking-[0.35em] text-white/40">核心理念</span>
             <h2 className="text-3xl md:text-6xl font-serif font-black italic italic-none text-white leading-tight tracking-tighter">驱动未来文明的<br />设计主义</h2>
           </div>
           <p className="text-lg md:text-2xl font-light text-white/60 leading-relaxed max-w-xl">
@@ -39,7 +39,7 @@ const PhilosophyDetail = ({ majorName, onClose }: { majorName: string; onClose: 
         <div className="space-y-12">
           <div className="flex items-center gap-4 text-cobalt">
             <div className="w-10 h-[2px] bg-cobalt" />
-            <span className="text-[10px] font-black uppercase tracking-widest italic">Philosophy Manifesto</span>
+            <span className="text-[10px] font-black tracking-widest">理念宣言</span>
           </div>
 
           <div className="grid md:grid-cols-2 gap-12">
@@ -66,8 +66,8 @@ const PhilosophyDetail = ({ majorName, onClose }: { majorName: string; onClose: 
                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100" alt="" />
                 </div>
                 <div>
-                   <p className="text-xs font-bold italic">Prof. Alexander Voss</p>
-                   <p className="text-[10px] text-white/30 uppercase tracking-widest font-black">Head of Strategic Design</p>
+                   <p className="text-xs font-bold">亚历山大·沃斯 教授</p>
+                   <p className="text-[10px] text-white/40 tracking-widest font-black">战略设计方向负责人</p>
                 </div>
              </div>
           </div>
@@ -86,7 +86,7 @@ const CurriculumDetail = ({ majorName, onClose }: { majorName: string; onClose: 
           {[1, 2, 3, 4].map(idx => (
             <div key={idx} className="flex flex-col items-center gap-3">
                <div className={cn("w-1 h-12 rounded-full", idx === 1 ? "bg-cobalt" : "bg-white/10")} />
-               <span className={cn("text-[10px] font-black uppercase rotate-90 my-4", idx === 1 ? "text-white" : "text-white/20")}>Year {idx}</span>
+               <span className={cn("text-[10px] font-black rotate-90 my-4", idx === 1 ? "text-white" : "text-white/20")}>第 {idx} 学年</span>
             </div>
           ))}
       </aside>
@@ -99,12 +99,12 @@ const CurriculumDetail = ({ majorName, onClose }: { majorName: string; onClose: 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-cobalt">
                 <GraduationCap size={20} />
-                <span className="text-[10px] font-black uppercase tracking-widest italic">Adaptive Learning System</span>
+                <span className="text-[10px] font-black tracking-widest">自适应学习体系</span>
               </div>
               <h2 className="text-4xl md:text-7xl font-serif font-black italic tracking-tighter text-ink leading-[0.9]">教学体系<br />深度解构</h2>
             </div>
             <div className="hidden md:block text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-ink/20 mb-2 italic">Credits Required</p>
+              <p className="text-[10px] font-black tracking-[0.35em] text-ink/20 mb-2">学分要求</p>
               <p className="text-4xl font-mono font-bold text-ink">180</p>
             </div>
           </div>
@@ -117,7 +117,7 @@ const CurriculumDetail = ({ majorName, onClose }: { majorName: string; onClose: 
             ].map(item => (
               <div key={item.label} className="bg-porcelain/50 p-6 rounded-3xl border border-silver/10 space-y-4">
                  <div className="flex items-center justify-between">
-                   <p className="text-[10px] font-black uppercase text-ink/40 tracking-widest">{item.label}</p>
+                   <p className="text-[10px] font-black text-ink/40 tracking-widest">{item.label}</p>
                    <p className="text-sm font-mono font-bold text-ink">{item.val}</p>
                  </div>
                  <div className="h-1.5 w-full bg-ink/5 rounded-full overflow-hidden">
@@ -133,15 +133,15 @@ const CurriculumDetail = ({ majorName, onClose }: { majorName: string; onClose: 
           <section className="space-y-10">
              <div className="flex items-center gap-4">
                <Layout size={18} className="text-cobalt" />
-               <h3 className="text-xl md:text-3xl font-serif font-black italic text-ink">阶段重点模块 / Core Modules</h3>
+               <h3 className="text-xl md:text-3xl font-serif font-black text-ink">阶段重点 · 核心模块</h3>
              </div>
 
              <div className="space-y-6">
                {[
-                 { year: 'Year 1', title: '思维重塑与原型研究', desc: '打破传统艺术边界，学习计算建模与生成式设计的基础逻辑。', tags: ['Computational Art', 'Critical Theory'] },
-                 { year: 'Year 2', title: '社会化实验与系统工程', desc: '进入真实的社会场景，针对特定政策或生态痛点进行系统性设计，包含跨媒介叙事。', tags: ['Social Design', 'System Thinking'] },
-                 { year: 'Year 3', title: '前沿实验室与极客协同', desc: '与行业顶级实验室联动，研究 AI、脑机接口或生物设计，探索人类未来的居住可能。', tags: ['Speculative Design', 'Bio-Art'] },
-                 { year: 'Year 4', title: 'Thesis: 高维叙事与商业交付', desc: '整合四年的学识，完成具备行业破坏力的毕业设计，并进行全球化预路演。', tags: ['Thesis Project', 'Strategy'] }
+                 { year: '第一学年', title: '思维重塑与原型研究', desc: '打破传统艺术边界，学习计算建模与生成式设计的基础逻辑。', tags: ['计算艺术', '批判理论'] },
+                 { year: '第二学年', title: '社会化实验与系统工程', desc: '进入真实的社会场景，针对特定政策或生态痛点进行系统性设计，包含跨媒介叙事。', tags: ['社会设计', '系统思维'] },
+                 { year: '第三学年', title: '前沿实验室与协同创新', desc: '与行业顶尖实验室联动，研究人工智能、人机交互或生物设计等方向，探索未来栖居可能。', tags: ['推测性设计', '生物艺术'] },
+                 { year: '第四学年', title: '毕业设计：高维叙事与行业交付', desc: '整合四年的学识，完成具备行业影响力的毕业项目，并进行面向全球的路演预演。', tags: ['毕业设计', '战略整合'] }
                ].map((module, i) => (
                  <div key={i} className="group bg-white p-8 md:p-12 rounded-[2.5rem] border border-silver/10 hover:border-cobalt transition-all flex flex-col md:flex-row gap-8 md:items-center">
                     <div className="shrink-0 flex md:flex-col items-center gap-2">
@@ -153,7 +153,7 @@ const CurriculumDetail = ({ majorName, onClose }: { majorName: string; onClose: 
                        <p className="text-sm md:text-base text-ink/50 font-light leading-relaxed max-w-2xl">{module.desc}</p>
                        <div className="flex flex-wrap gap-2 pt-2">
                           {module.tags.map(tag => (
-                            <span key={tag} className="px-3 py-1 bg-porcelain rounded-lg text-[9px] font-bold uppercase tracking-widest text-ink/40 group-hover:bg-cobalt/5 group-hover:text-cobalt transition-all">#{tag}</span>
+                            <span key={tag} className="px-3 py-1 bg-porcelain rounded-lg text-[9px] font-bold tracking-widest text-ink/40 group-hover:bg-cobalt/5 group-hover:text-cobalt transition-all">#{tag}</span>
                           ))}
                        </div>
                     </div>
@@ -172,13 +172,13 @@ const CurriculumDetail = ({ majorName, onClose }: { majorName: string; onClose: 
              </div>
              <div className="space-y-8 flex-1">
                 <div className="space-y-4">
-                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-cobalt">Featured Studio Project</span>
-                   <h4 className="text-3xl md:text-5xl font-serif font-black italic text-ink">"Synaptic City" 联觉城市</h4>
+                   <span className="text-[10px] font-black tracking-[0.35em] text-cobalt">代表性工作室项目</span>
+                   <h4 className="text-3xl md:text-5xl font-serif font-black text-ink">「联觉城市 Synaptic City」</h4>
                    <p className="text-base text-ink/60 font-light leading-relaxed">
-                      该项目由大三学生团队与 Google AI 实验室联合开发，探讨了情绪数据如何通过动态建筑立面实时反馈给居住者，被提名当年 INDEX 设计大奖。
+                      该项目由大三学生团队与国际科技实验室联合推进，探讨情绪数据如何通过动态建筑立面反馈给居住者，曾获 INDEX 设计奖提名。
                    </p>
                 </div>
-                <button className="h-14 px-8 border border-cobalt text-cobalt rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-cobalt hover:text-white transition-all">案例深度解析 (Case Study)</button>
+                <button className="h-14 px-8 border border-cobalt text-cobalt rounded-2xl text-[10px] font-bold tracking-widest hover:bg-cobalt hover:text-white transition-all">查看案例深度解析</button>
              </div>
           </div>
         </div>
@@ -197,7 +197,7 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
           <div className="space-y-4">
              <div className="flex items-center gap-3 text-cobalt">
                 <Briefcase size={20} />
-                <span className="text-[10px] font-black uppercase tracking-widest italic">Career Intelligence</span>
+                <span className="text-[10px] font-black tracking-widest">职业趋势洞察</span>
              </div>
              <h2 className="text-4xl md:text-7xl font-serif font-black italic tracking-tighter text-ink leading-[0.9]">就业趋势<br />与行业权重</h2>
           </div>
@@ -205,7 +205,7 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
           {/* Salary Data */}
           <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-silver/10 space-y-8">
              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-black uppercase tracking-widest text-ink/30 italic">Graduate Salary (USD)</h4>
+                <h4 className="text-xs font-black tracking-widest text-ink/30">毕业生薪资参考（美元）</h4>
                 <TrendingUp size={16} className="text-cobalt" />
              </div>
              <div className="space-y-6">
@@ -229,11 +229,11 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
 
           {/* Industry Distribution */}
           <div className="grid grid-cols-2 gap-6">
-             {[
-               { label: 'Tech Giants', val: '42%', icon: <Globe /> },
-               { label: 'Creative Org', val: '28%', icon: <Sparkles /> },
-               { label: 'Public Sector', val: '15%', icon: <MapPin /> },
-               { label: 'Entrepreneurs', val: '15%', icon: <TrendingUp /> }
+               {[
+               { label: '科技巨头', val: '42%', icon: <Globe /> },
+               { label: '创意与文化机构', val: '28%', icon: <Sparkles /> },
+               { label: '公共部门', val: '15%', icon: <MapPin /> },
+               { label: '创业创新', val: '15%', icon: <TrendingUp /> }
              ].map(item => (
                <div key={item.label} className="bg-white p-8 rounded-[2.5rem] border border-silver/10 space-y-4">
                   <div className="w-10 h-10 rounded-2xl bg-porcelain flex items-center justify-center text-cobalt">
@@ -241,7 +241,7 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
                   </div>
                   <div className="space-y-1">
                      <p className="text-2xl font-serif font-black italic text-ink">{item.val}</p>
-                     <p className="text-[10px] font-bold text-ink/30 uppercase tracking-widest">{item.label}</p>
+                     <p className="text-[10px] font-bold text-ink/30 tracking-widest">{item.label}</p>
                   </div>
                </div>
              ))}
@@ -258,7 +258,7 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
             <div className="space-y-12">
                <div className="flex items-center gap-4 text-white/40">
                   <div className="w-10 h-[1px] bg-white/20" />
-                  <span className="text-[10px] font-black uppercase tracking-widest italic">Top Recruitment Partners</span>
+                  <span className="text-[10px] font-black tracking-widest">重点招聘合作方</span>
                </div>
                <div className="grid grid-cols-2 gap-x-12 gap-y-16">
                   {['Google', 'Tesla', 'IDEO', 'Meta', 'Apple', 'Frog Design'].map(brand => (
@@ -272,7 +272,7 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
             {/* Career Velocity Box */}
             <div className="bg-white/5 backdrop-blur-3xl p-10 md:p-16 rounded-[3rem] border border-white/10 space-y-10">
                <div className="space-y-4">
-                  <h4 className="text-sm font-black uppercase tracking-[0.4em] text-cobalt">Alumni Career Velocity</h4>
+                  <h4 className="text-sm font-black tracking-[0.35em] text-cobalt">校友职业发展速度</h4>
                   <p className="text-xl md:text-3xl font-serif font-light italic leading-loose text-white/60">
                      我们的毕业生平均在入职第 <span className="text-white font-black">2.4</span> 年晋升至中高层决策岗位，职业增速远超行业平均水平 <span className="text-white font-black">1.8</span> 倍。
                   </p>
@@ -280,15 +280,15 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
                
                <div className="flex flex-col gap-4">
                   {[
-                    { name: 'David W.', role: 'Senior UX Lead @ Airbnb', desc: '从毕业设计到硅谷独角兽核心团队仅用时 18 个月。' },
-                    { name: 'Chen L.', role: 'Founder of "Nova" Studio', desc: '主导了亚太区多个地标型数字艺术装置设计与交付。' }
+                    { name: 'David W.', role: '高级体验设计负责人 · 知名住宿科技平台', desc: '从毕业设计到进入核心产品团队约 18 个月。' },
+                    { name: 'Chen L.', role: '「Nova」工作室创始人', desc: '主导亚太区多个地标型数字艺术装置的设计与落地。' }
                   ].map((alumnus, i) => (
                     <div key={i} className="flex gap-6 p-6 bg-white/5 rounded-2xl border border-white/5 group hover:bg-white/10 transition-all">
                        <div className="w-12 h-12 rounded-full overflow-hidden bg-white/10 shrink-0">
                           <User size={24} className="m-auto mt-3 text-white/20" />
                        </div>
                        <div className="space-y-1">
-                          <p className="text-[10px] font-black uppercase text-cobalt">{alumnus.name}</p>
+                          <p className="text-[10px] font-black text-cobalt tracking-widest">{alumnus.name}</p>
                           <p className="text-sm font-bold italic">{alumnus.role}</p>
                           <p className="text-[10px] text-white/30 font-medium">{alumnus.desc}</p>
                        </div>
@@ -297,8 +297,8 @@ const CareerDetail = ({ majorName, onClose }: { majorName: string; onClose: () =
                </div>
             </div>
 
-            <button className="w-full h-20 bg-white text-ink rounded-3xl text-xs font-bold uppercase tracking-[0.3em] hover:bg-cobalt hover:text-white transition-all shadow-2xl shadow-cobalt/20">
-               获取定制就业报告 (Full Report)
+            <button className="w-full h-20 bg-white text-ink rounded-3xl text-xs font-bold tracking-[0.2em] hover:bg-cobalt hover:text-white transition-all shadow-2xl shadow-cobalt/20">
+               获取定制就业报告
             </button>
          </div>
       </div>

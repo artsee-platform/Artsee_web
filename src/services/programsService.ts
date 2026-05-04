@@ -109,7 +109,18 @@ const mapProgramRow = (row: ProgramRow): InstitutionProgram | null => {
   if (!schoolKeys.length) return null;
 
   const id = String(firstValue(row.id, row.uuid, row.slug, `${schoolKeys[0]}-${row.program_name || row.name_zh || row.name || row.name_en || crypto.randomUUID()}`));
-  const name = String(firstValue(row.program_name, row.name_zh, row.title_zh, row.name, row.title, row.name_en, row.english_name, '未命名专业'));
+  const name = String(
+    firstValue(
+      row.name_zh,
+      row.title_zh,
+      row.program_name,
+      row.name,
+      row.title,
+      row.name_en,
+      row.english_name,
+      '未命名专业'
+    )
+  );
   const degreeType = toDisplayString(firstValue(row.degree_type, row.degree, row.degree_label, row.degreeLabel));
   const degreeFullName = toDisplayString(firstValue(row.degree_full_name, row.degree_name, row.degreeName));
   const category = toDisplayString(firstValue(row.program_category, row.category, row.category_name));

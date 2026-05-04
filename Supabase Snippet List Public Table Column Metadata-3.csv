@@ -1,0 +1,21 @@
+table_schema,table_name,column_name,foreign_table_schema,foreign_table_name,foreign_column_name,update_rule,delete_rule,constraint_name
+public,application_tracker,program_id,public,programs,id,NO ACTION,SET NULL,application_tracker_program_id_fkey
+public,art_categories,parent_id,public,art_categories,id,NO ACTION,RESTRICT,art_categories_parent_id_fkey
+public,cases,author_id,public,user_profiles,id,NO ACTION,SET NULL,cases_author_profile_fkey
+public,portfolio_media,case_id,public,cases,id,NO ACTION,CASCADE,portfolio_media_case_id_fkey
+public,post_replies,author_id,public,user_profiles,id,NO ACTION,SET NULL,post_replies_author_profile_fkey
+public,post_replies,post_id,public,posts,id,NO ACTION,CASCADE,post_replies_post_id_fkey
+public,posts,author_id,public,user_profiles,id,NO ACTION,SET NULL,posts_author_profile_fkey
+public,program_admissions,program_id,public,programs,id,NO ACTION,CASCADE,program_admissions_program_id_fkey
+public,program_art_categories,category_id,public,art_categories,id,NO ACTION,RESTRICT,program_art_categories_category_id_fkey
+public,program_art_categories,program_id,public,programs,id,NO ACTION,CASCADE,program_art_categories_program_id_fkey
+public,program_evaluations,program_id,public,programs,id,NO ACTION,CASCADE,program_evaluations_program_id_fkey
+public,program_fees,currency_code,public,currencies,code,CASCADE,RESTRICT,program_fees_currency_code_fkey
+public,program_fees,program_id,public,programs,id,NO ACTION,CASCADE,program_fees_program_id_fkey
+public,programs,normalized_degree_type,public,degree_labels,code,CASCADE,RESTRICT,programs_normalized_degree_type_fkey
+public,programs,school_id,public,schools,id,NO ACTION,CASCADE,programs_school_id_fkey
+public,region_tags,implied_country_code,public,countries,code,CASCADE,RESTRICT,region_tags_implied_country_fkey
+public,schools,country_code,public,countries,code,CASCADE,RESTRICT,schools_country_code_fkey
+public,schools,region_tag,public,region_tags,code,CASCADE,RESTRICT,schools_region_tag_fkey
+public,schools,school_type,public,school_types,code,CASCADE,RESTRICT,schools_school_type_fkey
+public,user_favorites,program_id,public,programs,id,NO ACTION,CASCADE,user_favorites_program_id_fkey

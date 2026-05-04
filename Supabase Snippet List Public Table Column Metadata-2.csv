@@ -1,0 +1,67 @@
+table_schema,table_name,constraint_name,constraint_type,column_name,ordinal_position
+public,application_tracker,application_tracker_program_id_fkey,FOREIGN KEY,program_id,1
+public,application_tracker,application_tracker_user_id_fkey,FOREIGN KEY,user_id,1
+public,application_tracker,application_tracker_pkey,PRIMARY KEY,id,1
+public,art_categories,art_categories_parent_id_fkey,FOREIGN KEY,parent_id,1
+public,art_categories,art_categories_pkey,PRIMARY KEY,id,1
+public,art_categories,art_categories_code_key,UNIQUE,code,1
+public,art_categories,art_categories_sibling_name_uq,UNIQUE,parent_id,1
+public,art_categories,art_categories_sibling_name_uq,UNIQUE,name_zh,2
+public,auth_provider_links,auth_provider_links_user_id_fkey,FOREIGN KEY,user_id,1
+public,auth_provider_links,auth_provider_links_pkey,PRIMARY KEY,id,1
+public,auth_provider_links,auth_provider_links_provider_provider_user_id_key,UNIQUE,provider,1
+public,auth_provider_links,auth_provider_links_provider_provider_user_id_key,UNIQUE,provider_user_id,2
+public,cases,cases_author_id_fkey,FOREIGN KEY,author_id,1
+public,cases,cases_author_profile_fkey,FOREIGN KEY,author_id,1
+public,cases,cases_pkey,PRIMARY KEY,id,1
+public,countries,countries_pkey,PRIMARY KEY,code,1
+public,currencies,currencies_pkey,PRIMARY KEY,code,1
+public,degree_labels,degree_labels_pkey,PRIMARY KEY,code,1
+public,home_contents,home_contents_pkey,PRIMARY KEY,id,1
+public,likes,likes_user_id_fkey,FOREIGN KEY,user_id,1
+public,likes,likes_pkey,PRIMARY KEY,id,1
+public,likes,likes_user_id_target_id_target_type_key,UNIQUE,user_id,1
+public,likes,likes_user_id_target_id_target_type_key,UNIQUE,target_id,2
+public,likes,likes_user_id_target_id_target_type_key,UNIQUE,target_type,3
+public,portfolio_media,portfolio_media_case_id_fkey,FOREIGN KEY,case_id,1
+public,portfolio_media,portfolio_media_pkey,PRIMARY KEY,id,1
+public,post_replies,post_replies_author_id_fkey,FOREIGN KEY,author_id,1
+public,post_replies,post_replies_author_profile_fkey,FOREIGN KEY,author_id,1
+public,post_replies,post_replies_post_id_fkey,FOREIGN KEY,post_id,1
+public,post_replies,post_replies_pkey,PRIMARY KEY,id,1
+public,posts,posts_author_id_fkey,FOREIGN KEY,author_id,1
+public,posts,posts_author_profile_fkey,FOREIGN KEY,author_id,1
+public,posts,posts_pkey,PRIMARY KEY,id,1
+public,program_admissions,program_admissions_program_id_fkey,FOREIGN KEY,program_id,1
+public,program_admissions,program_admissions_pkey,PRIMARY KEY,id,1
+public,program_art_categories,program_art_categories_category_id_fkey,FOREIGN KEY,category_id,1
+public,program_art_categories,program_art_categories_program_id_fkey,FOREIGN KEY,program_id,1
+public,program_art_categories,program_art_categories_pkey,PRIMARY KEY,id,1
+public,program_evaluations,program_evaluations_program_id_fkey,FOREIGN KEY,program_id,1
+public,program_evaluations,program_evaluations_pkey,PRIMARY KEY,id,1
+public,program_fees,program_fees_currency_code_fkey,FOREIGN KEY,currency_code,1
+public,program_fees,program_fees_program_id_fkey,FOREIGN KEY,program_id,1
+public,program_fees,program_fees_pkey,PRIMARY KEY,id,1
+public,programs,programs_normalized_degree_type_fkey,FOREIGN KEY,normalized_degree_type,1
+public,programs,programs_school_id_fkey,FOREIGN KEY,school_id,1
+public,programs,programs_pkey,PRIMARY KEY,id,1
+public,region_tags,region_tags_implied_country_fkey,FOREIGN KEY,implied_country_code,1
+public,region_tags,region_tags_pkey,PRIMARY KEY,code,1
+public,school_types,school_types_pkey,PRIMARY KEY,code,1
+public,schools,schools_country_code_fkey,FOREIGN KEY,country_code,1
+public,schools,schools_region_tag_fkey,FOREIGN KEY,region_tag,1
+public,schools,schools_school_type_fkey,FOREIGN KEY,school_type,1
+public,schools,schools_auto_pkey,PRIMARY KEY,id,1
+public,schools,schools_auto_official_website_key,UNIQUE,official_website,1
+public,sms_verifications,sms_verifications_pkey,PRIMARY KEY,id,1
+public,user_favorites,user_favorites_program_id_fkey,FOREIGN KEY,program_id,1
+public,user_favorites,user_favorites_user_id_fkey,FOREIGN KEY,user_id,1
+public,user_favorites,user_favorites_pkey,PRIMARY KEY,id,1
+public,user_follows,user_follows_follower_id_fkey,FOREIGN KEY,follower_id,1
+public,user_follows,user_follows_following_id_fkey,FOREIGN KEY,following_id,1
+public,user_follows,user_follows_pkey,PRIMARY KEY,id,1
+public,user_follows,user_follows_follower_id_following_id_key,UNIQUE,follower_id,1
+public,user_follows,user_follows_follower_id_following_id_key,UNIQUE,following_id,2
+public,user_profiles,user_profiles_id_fkey,FOREIGN KEY,id,1
+public,user_profiles,user_profiles_pkey,PRIMARY KEY,id,1
+public,user_profiles,user_profiles_wechat_open_id_key,UNIQUE,wechat_open_id,1

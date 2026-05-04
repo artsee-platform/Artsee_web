@@ -1,0 +1,287 @@
+table_schema,table_name,ordinal_position,column_name,data_type,udt_name,is_nullable,column_default,character_maximum_length,numeric_precision,numeric_scale
+public,application_tracker,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,application_tracker,2,user_id,uuid,uuid,YES,null,null,null,null
+public,application_tracker,3,school_name,text,text,NO,null,null,null,null
+public,application_tracker,4,program_name,text,text,NO,null,null,null,null
+public,application_tracker,6,tier,text,text,YES,'match'::text,null,null,null
+public,application_tracker,7,status,text,text,YES,'planning'::text,null,null,null
+public,application_tracker,8,deadline,text,text,YES,null,null,null,null
+public,application_tracker,9,notes,text,text,YES,null,null,null,null
+public,application_tracker,10,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,application_tracker,11,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,application_tracker,12,program_id,uuid,uuid,YES,null,null,null,null
+public,art_categories,1,id,integer,int4,NO,null,null,32,0
+public,art_categories,2,code,text,text,NO,null,null,null,null
+public,art_categories,3,level,smallint,int2,NO,null,null,16,0
+public,art_categories,4,parent_id,integer,int4,YES,null,null,32,0
+public,art_categories,5,name_zh,text,text,NO,null,null,null,null
+public,art_categories,6,name_en,text,text,NO,null,null,null,null
+public,art_categories,7,aliases,ARRAY,_text,NO,'{}'::text[],null,null,null
+public,art_categories,8,is_interdisciplinary,boolean,bool,NO,false,null,null,null
+public,art_categories,9,description_zh,text,text,YES,null,null,null,null
+public,art_categories,10,description_en,text,text,YES,null,null,null,null
+public,art_categories,11,display_order,smallint,int2,NO,0,null,16,0
+public,art_categories,12,color_hex,text,text,YES,null,null,null,null
+public,art_categories,13,icon_slug,text,text,YES,null,null,null,null
+public,art_categories,14,is_active,boolean,bool,NO,true,null,null,null
+public,art_categories,15,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,art_categories,16,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,auth_provider_links,1,id,integer,int4,NO,nextval('auth_provider_links_id_seq'::regclass),null,32,0
+public,auth_provider_links,2,user_id,uuid,uuid,NO,null,null,null,null
+public,auth_provider_links,3,provider,character varying,varchar,NO,null,50,null,null
+public,auth_provider_links,4,provider_user_id,character varying,varchar,NO,null,100,null,null
+public,auth_provider_links,5,provider_data,jsonb,jsonb,YES,null,null,null,null
+public,auth_provider_links,6,is_primary,boolean,bool,YES,false,null,null,null
+public,auth_provider_links,7,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,auth_provider_links,8,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,cases,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,cases,2,author_id,uuid,uuid,YES,null,null,null,null
+public,cases,3,title,text,text,NO,null,null,null,null
+public,cases,4,undergrad,text,text,YES,null,null,null,null
+public,cases,5,gpa,text,text,YES,null,null,null,null
+public,cases,6,target_school,text,text,YES,null,null,null,null
+public,cases,7,target_program,text,text,YES,null,null,null,null
+public,cases,8,result,text,text,YES,'admitted'::text,null,null,null
+public,cases,9,content,text,text,YES,null,null,null,null
+public,cases,10,excerpt,text,text,YES,null,null,null,null
+public,cases,11,cover_image_url,text,text,YES,null,null,null,null
+public,cases,12,cover_gradient,text,text,YES,'from-blue-500 to-purple-600'::text,null,null,null
+public,cases,13,is_anonymous,boolean,bool,YES,false,null,null,null
+public,cases,14,tags,ARRAY,_text,YES,'{}'::text[],null,null,null
+public,cases,15,year,text,text,YES,null,null,null,null
+public,cases,16,like_count,integer,int4,YES,0,null,32,0
+public,cases,17,comment_count,integer,int4,YES,0,null,32,0
+public,cases,18,save_count,integer,int4,YES,0,null,32,0
+public,cases,19,view_count,integer,int4,YES,0,null,32,0
+public,cases,20,status,text,text,YES,'published'::text,null,null,null
+public,cases,21,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,cases,22,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,countries,1,code,text,text,NO,null,null,null,null
+public,countries,2,name_en,text,text,NO,null,null,null,null
+public,countries,3,name_zh,text,text,YES,null,null,null,null
+public,countries,4,region_continent,text,text,YES,null,null,null,null
+public,countries,5,sort_order,integer,int4,NO,0,null,32,0
+public,countries,6,is_active,boolean,bool,NO,true,null,null,null
+public,countries,7,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,countries,8,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,currencies,1,code,text,text,NO,null,null,null,null
+public,currencies,2,name_en,text,text,NO,null,null,null,null
+public,currencies,3,name_zh,text,text,YES,null,null,null,null
+public,currencies,4,sort_order,integer,int4,NO,0,null,32,0
+public,currencies,5,is_active,boolean,bool,NO,true,null,null,null
+public,currencies,6,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,currencies,7,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,degree_labels,1,code,text,text,NO,null,null,null,null
+public,degree_labels,2,display_name,text,text,YES,null,null,null,null
+public,degree_labels,3,display_name_zh,text,text,YES,null,null,null,null
+public,degree_labels,4,family,text,text,NO,null,null,null,null
+public,degree_labels,5,is_combined,boolean,bool,NO,false,null,null,null
+public,degree_labels,6,parts,ARRAY,_text,YES,null,null,null,null
+public,degree_labels,7,sort_order,integer,int4,NO,0,null,32,0
+public,degree_labels,8,is_active,boolean,bool,NO,true,null,null,null
+public,degree_labels,9,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,degree_labels,10,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,home_contents,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,home_contents,2,section_type,text,text,NO,null,null,null,null
+public,home_contents,3,title,text,text,NO,''::text,null,null,null
+public,home_contents,4,subtitle,text,text,YES,null,null,null,null
+public,home_contents,5,image_url,text,text,YES,null,null,null,null
+public,home_contents,6,link_url,text,text,YES,null,null,null,null
+public,home_contents,7,link_text,text,text,YES,null,null,null,null
+public,home_contents,8,badge,text,text,YES,null,null,null,null
+public,home_contents,9,display_order,integer,int4,NO,0,null,32,0
+public,home_contents,10,is_active,boolean,bool,NO,true,null,null,null
+public,home_contents,11,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,home_contents,12,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,likes,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,likes,2,user_id,uuid,uuid,YES,null,null,null,null
+public,likes,3,target_id,uuid,uuid,NO,null,null,null,null
+public,likes,4,target_type,text,text,NO,null,null,null,null
+public,likes,5,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,portfolio_media,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,portfolio_media,2,case_id,uuid,uuid,YES,null,null,null,null
+public,portfolio_media,3,url,text,text,NO,null,null,null,null
+public,portfolio_media,4,type,text,text,YES,'image'::text,null,null,null
+public,portfolio_media,5,title,text,text,YES,null,null,null,null
+public,portfolio_media,6,sort_order,integer,int4,YES,0,null,32,0
+public,portfolio_media,7,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,post_replies,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,post_replies,2,post_id,uuid,uuid,YES,null,null,null,null
+public,post_replies,3,author_id,uuid,uuid,YES,null,null,null,null
+public,post_replies,4,content,text,text,NO,null,null,null,null
+public,post_replies,5,like_count,integer,int4,YES,0,null,32,0
+public,post_replies,6,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,posts,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,posts,2,author_id,uuid,uuid,YES,null,null,null,null
+public,posts,3,type,text,text,YES,'question'::text,null,null,null
+public,posts,4,title,text,text,NO,null,null,null,null
+public,posts,5,content,text,text,YES,null,null,null,null
+public,posts,6,tags,ARRAY,_text,YES,'{}'::text[],null,null,null
+public,posts,7,like_count,integer,int4,YES,0,null,32,0
+public,posts,8,answer_count,integer,int4,YES,0,null,32,0
+public,posts,9,view_count,integer,int4,YES,0,null,32,0
+public,posts,10,is_mentor_post,boolean,bool,YES,false,null,null,null
+public,posts,11,status,text,text,YES,'published'::text,null,null,null
+public,posts,12,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,posts,13,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_admissions,1,id,integer,int4,NO,nextval('program_admissions_id_seq'::regclass),null,32,0
+public,program_admissions,3,portfolio_requirements,text,text,YES,null,null,null,null
+public,program_admissions,4,portfolio_format,jsonb,jsonb,YES,null,null,null,null
+public,program_admissions,5,portfolio_deadline,date,date,YES,null,null,null,null
+public,program_admissions,6,ielts_overall,numeric,numeric,YES,null,null,3,1
+public,program_admissions,7,ielts_subscores,jsonb,jsonb,YES,null,null,null,null
+public,program_admissions,8,toefl_ibt,integer,int4,YES,null,null,32,0
+public,program_admissions,9,other_language_tests,text,text,YES,null,null,null,null
+public,program_admissions,10,interview_format,jsonb,jsonb,YES,null,null,null,null
+public,program_admissions,11,reference_count,integer,int4,YES,null,null,32,0
+public,program_admissions,12,academic_requirements,text,text,YES,null,null,null,null
+public,program_admissions,13,regular_deadline,date,date,YES,null,null,null,null
+public,program_admissions,14,priority_deadline,date,date,YES,null,null,null,null
+public,program_admissions,15,deadline_notes,text,text,YES,null,null,null,null
+public,program_admissions,16,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_admissions,17,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_admissions,18,program_id,uuid,uuid,NO,null,null,null,null
+public,program_art_categories,1,id,integer,int4,NO,nextval('program_art_categories_id_seq'::regclass),null,32,0
+public,program_art_categories,3,category_id,integer,int4,NO,null,null,32,0
+public,program_art_categories,4,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_art_categories,5,program_id,uuid,uuid,NO,null,null,null,null
+public,program_evaluations,1,id,integer,int4,NO,nextval('program_evaluations_id_seq'::regclass),null,32,0
+public,program_evaluations,3,application_difficulty_score,smallint,int2,YES,null,null,16,0
+public,program_evaluations,4,competition_level,text,text,YES,null,null,null,null
+public,program_evaluations,5,acceptance_rate,numeric,numeric,YES,null,null,5,2
+public,program_evaluations,6,data_source,text,text,YES,null,null,null,null
+public,program_evaluations,7,source_url,text,text,YES,null,null,null,null
+public,program_evaluations,8,evidence_note,text,text,YES,null,null,null,null
+public,program_evaluations,9,updated_by,character varying,varchar,YES,null,100,null,null
+public,program_evaluations,10,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_evaluations,11,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_evaluations,12,program_id,uuid,uuid,NO,null,null,null,null
+public,program_fees,1,id,integer,int4,NO,nextval('program_fees_id_seq'::regclass),null,32,0
+public,program_fees,3,international_tuition_fee,numeric,numeric,YES,null,null,12,2
+public,program_fees,4,domestic_tuition_fee,numeric,numeric,YES,null,null,12,2
+public,program_fees,5,currency_code,character varying,varchar,YES,'GBP'::character varying,3,null,null
+public,program_fees,6,additional_fees_note,text,text,YES,null,null,null,null
+public,program_fees,7,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_fees,8,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,program_fees,9,program_id,uuid,uuid,NO,null,null,null,null
+public,programs,2,school_id,uuid,uuid,NO,null,null,null,null
+public,programs,3,program_name,character varying,varchar,NO,null,200,null,null
+public,programs,4,raw_degree_type,character varying,varchar,YES,null,50,null,null
+public,programs,5,degree_full_name,character varying,varchar,YES,null,200,null,null
+public,programs,6,program_category,character varying,varchar,YES,null,100,null,null
+public,programs,7,program_code,character varying,varchar,YES,null,50,null,null
+public,programs,8,ucas_code,character varying,varchar,YES,null,50,null,null
+public,programs,9,duration_text,text,text,YES,null,null,null,null
+public,programs,10,duration_months,integer,int4,YES,null,null,32,0
+public,programs,11,study_mode,text,text,YES,null,null,null,null
+public,programs,12,intake_months,jsonb,jsonb,YES,null,null,null,null
+public,programs,13,requires_portfolio,boolean,bool,YES,false,null,null,null
+public,programs,14,requires_interview,boolean,bool,YES,false,null,null,null
+public,programs,15,requires_personal_statement,boolean,bool,YES,false,null,null,null
+public,programs,16,minimum_education,jsonb,jsonb,YES,null,null,null,null
+public,programs,17,program_overview,text,text,YES,null,null,null,null
+public,programs,18,program_highlights,text,text,YES,null,null,null,null
+public,programs,19,accreditation_info,text,text,YES,null,null,null,null
+public,programs,20,core_courses,text,text,YES,null,null,null,null
+public,programs,21,career_paths,text,text,YES,null,null,null,null
+public,programs,22,admission_summary,jsonb,jsonb,YES,null,null,null,null
+public,programs,23,cover_image_url,text,text,YES,null,null,null,null
+public,programs,24,status,character varying,varchar,YES,'active'::character varying,20,null,null
+public,programs,25,is_recommended,boolean,bool,YES,false,null,null,null
+public,programs,26,source_file,character varying,varchar,YES,null,200,null,null
+public,programs,27,source_hash,character varying,varchar,YES,null,64,null,null
+public,programs,28,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,programs,29,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,programs,30,school_name_zh,text,text,YES,null,null,null,null
+public,programs,31,school_name_en,text,text,YES,null,null,null,null
+public,programs,32,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,programs,33,normalized_degree_type,text,text,YES,null,null,null,null
+public,programs,35,honours_flag,boolean,bool,NO,false,null,null,null
+public,region_tags,1,code,text,text,NO,null,null,null,null
+public,region_tags,2,name_en,text,text,NO,null,null,null,null
+public,region_tags,3,name_zh,text,text,YES,null,null,null,null
+public,region_tags,4,scope,text,text,NO,null,null,null,null
+public,region_tags,5,implied_country_code,text,text,YES,null,null,null,null
+public,region_tags,6,sort_order,integer,int4,NO,0,null,32,0
+public,region_tags,7,is_active,boolean,bool,NO,true,null,null,null
+public,region_tags,8,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,region_tags,9,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,school_types,1,code,text,text,NO,null,null,null,null
+public,school_types,2,display_name,text,text,NO,null,null,null,null
+public,school_types,3,display_name_zh,text,text,YES,null,null,null,null
+public,school_types,4,sort_order,integer,int4,NO,0,null,32,0
+public,school_types,5,is_active,boolean,bool,NO,true,null,null,null
+public,school_types,6,created_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,school_types,7,updated_at,timestamp with time zone,timestamptz,NO,now(),null,null,null
+public,schools,1,id,uuid,uuid,NO,gen_random_uuid(),null,null,null
+public,schools,2,name_zh,text,text,YES,null,null,null,null
+public,schools,3,name_en,text,text,YES,null,null,null,null
+public,schools,4,raw_country,text,text,YES,null,null,null,null
+public,schools,5,city,text,text,YES,null,null,null,null
+public,schools,6,school_type,text,text,YES,null,null,null,null
+public,schools,7,qs_art_design_rank,integer,int4,YES,null,null,32,0
+public,schools,8,qs_architecture_built_environment_rank,integer,int4,YES,null,null,32,0
+public,schools,9,school_tier,text,text,YES,null,null,null,null
+public,schools,10,official_website,text,text,YES,null,null,null,null
+public,schools,11,international_students_page,text,text,YES,null,null,null,null
+public,schools,12,founded_year,integer,int4,YES,null,null,32,0
+public,schools,13,description,text,text,YES,null,null,null,null
+public,schools,14,feature_tags,ARRAY,_text,YES,'{}'::text[],null,null,null
+public,schools,15,status,text,text,YES,'pending'::text,null,null,null
+public,schools,16,qs_overall_rank,integer,int4,YES,null,null,32,0
+public,schools,17,entry_score_requirements,text,text,YES,null,null,null,null
+public,schools,18,annual_intake,text,text,YES,null,null,null,null
+public,schools,19,application_deadline,text,text,YES,null,null,null,null
+public,schools,20,strength_disciplines,ARRAY,_text,YES,'{}'::text[],null,null,null
+public,schools,21,notable_alumni,text,text,YES,null,null,null,null
+public,schools,22,logo_url,text,text,YES,null,null,null,null
+public,schools,23,campus_image_urls,ARRAY,_text,YES,'{}'::text[],null,null,null
+public,schools,24,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,schools,25,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,schools,26,qs_art_humanities_rank,integer,int4,YES,null,null,32,0
+public,schools,27,qs_history_of_art_rank,integer,int4,YES,null,null,32,0
+public,schools,28,country_code,text,text,YES,null,null,null,null
+public,schools,29,region_tag,text,text,YES,null,null,null,null
+public,sms_verifications,1,id,integer,int4,NO,nextval('sms_verifications_id_seq'::regclass),null,32,0
+public,sms_verifications,2,phone,character varying,varchar,NO,null,20,null,null
+public,sms_verifications,3,country_code,character varying,varchar,YES,'+86'::character varying,10,null,null
+public,sms_verifications,4,verification_code,character varying,varchar,NO,null,10,null,null
+public,sms_verifications,5,purpose,character varying,varchar,NO,null,50,null,null
+public,sms_verifications,6,expires_at,timestamp with time zone,timestamptz,NO,null,null,null,null
+public,sms_verifications,7,verified,boolean,bool,YES,false,null,null,null
+public,sms_verifications,8,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,user_favorites,1,id,integer,int4,NO,nextval('user_favorites_id_seq'::regclass),null,32,0
+public,user_favorites,2,user_id,uuid,uuid,NO,null,null,null,null
+public,user_favorites,4,note,text,text,YES,null,null,null,null
+public,user_favorites,5,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,user_favorites,6,program_id,uuid,uuid,NO,null,null,null,null
+public,user_follows,1,id,integer,int4,NO,nextval('user_follows_id_seq'::regclass),null,32,0
+public,user_follows,2,follower_id,uuid,uuid,NO,null,null,null,null
+public,user_follows,3,following_id,uuid,uuid,NO,null,null,null,null
+public,user_follows,4,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,user_profiles,1,id,uuid,uuid,NO,null,null,null,null
+public,user_profiles,2,nickname,character varying,varchar,YES,null,100,null,null
+public,user_profiles,3,avatar_url,text,text,YES,null,null,null,null
+public,user_profiles,4,phone,character varying,varchar,YES,null,20,null,null
+public,user_profiles,5,country_code,character varying,varchar,YES,'+86'::character varying,10,null,null
+public,user_profiles,6,wechat_open_id,character varying,varchar,YES,null,100,null,null
+public,user_profiles,7,wechat_union_id,character varying,varchar,YES,null,100,null,null
+public,user_profiles,8,wechat_nickname,character varying,varchar,YES,null,100,null,null
+public,user_profiles,9,wechat_avatar_url,text,text,YES,null,null,null,null
+public,user_profiles,10,user_type,character varying,varchar,YES,'student'::character varying,20,null,null
+public,user_profiles,11,bio,text,text,YES,null,null,null,null
+public,user_profiles,12,location,character varying,varchar,YES,null,100,null,null
+public,user_profiles,13,website,character varying,varchar,YES,null,200,null,null
+public,user_profiles,14,language,character varying,varchar,YES,'zh-CN'::character varying,10,null,null
+public,user_profiles,15,theme,character varying,varchar,YES,'light'::character varying,20,null,null
+public,user_profiles,16,following_count,integer,int4,YES,0,null,32,0
+public,user_profiles,17,followers_count,integer,int4,YES,0,null,32,0
+public,user_profiles,18,artworks_count,integer,int4,YES,0,null,32,0
+public,user_profiles,19,favorites_count,integer,int4,YES,0,null,32,0
+public,user_profiles,20,is_verified,boolean,bool,YES,false,null,null,null
+public,user_profiles,21,is_premium,boolean,bool,YES,false,null,null,null
+public,user_profiles,22,status,character varying,varchar,YES,'active'::character varying,20,null,null
+public,user_profiles,23,last_login_at,timestamp with time zone,timestamptz,YES,null,null,null,null
+public,user_profiles,24,created_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,user_profiles,25,updated_at,timestamp with time zone,timestamptz,YES,now(),null,null,null
+public,user_profiles,26,role,character varying,varchar,YES,'user'::character varying,20,null,null

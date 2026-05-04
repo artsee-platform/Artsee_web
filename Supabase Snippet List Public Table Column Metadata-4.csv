@@ -1,0 +1,25 @@
+table_schema,table_name,table_type
+public,application_tracker,BASE TABLE
+public,art_categories,BASE TABLE
+public,auth_provider_links,BASE TABLE
+public,cases,BASE TABLE
+public,countries,BASE TABLE
+public,currencies,BASE TABLE
+public,degree_labels,BASE TABLE
+public,home_contents,BASE TABLE
+public,likes,BASE TABLE
+public,portfolio_media,BASE TABLE
+public,post_replies,BASE TABLE
+public,posts,BASE TABLE
+public,program_admissions,BASE TABLE
+public,program_art_categories,BASE TABLE
+public,program_evaluations,BASE TABLE
+public,program_fees,BASE TABLE
+public,programs,BASE TABLE
+public,region_tags,BASE TABLE
+public,school_types,BASE TABLE
+public,schools,BASE TABLE
+public,sms_verifications,BASE TABLE
+public,user_favorites,BASE TABLE
+public,user_follows,BASE TABLE
+public,user_profiles,BASE TABLE
