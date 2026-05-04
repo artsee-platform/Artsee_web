@@ -33,3 +33,20 @@ export interface InstitutionProgram {
 }
 
 export type ProgramsByInstitution = Record<string, InstitutionProgram[]>;
+
+export interface ProgramDisplayText {
+  id?: string;
+  name?: string;
+  degreeBadge?: string;
+  degreeFullName?: string;
+  category?: string;
+  duration?: string;
+  studyMode?: string;
+  intakeMonths?: string[];
+  summary?: string;
+  overview?: string;
+  highlights?: string[];
+  admissionSummary?: string;
+  minimumEducation?: string;
+  careerPaths?: string[];
+}
