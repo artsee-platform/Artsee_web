@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
-import { Plus, X, Sparkles, Trophy, Target, CreditCard, Users, Briefcase, BarChart3, Info, Search, Filter, Layers, Zap, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Plus, X, Sparkles, Trophy, Target, CreditCard, Users, Briefcase, BarChart3, Info, Search, Filter, Layers, Zap, EyeOff, CheckCircle2, Clock } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Institution, INSTITUTIONS_DATA, InstitutionData } from '../data/institutions';
 import { analyzeInstitutions } from '../services/aiService';
@@ -63,6 +63,9 @@ export const ComparisonCenterView = ({ onBack, onInstitutionClick, institutionsD
   const perspectives = {
     overview: [
       { key: 'rank', label: '全球排名', icon: <Trophy size={14} /> },
+      { key: 'foundedYear', label: '创立年份', icon: <Clock size={14} /> },
+      { key: 'featureTags', label: '特色标签', icon: <Sparkles size={14} /> },
+      { key: 'strengthDisciplines', label: '优势学科', icon: <Layers size={14} /> },
       { key: 'admissionDifficulty', label: '录取率', icon: <Target size={14} /> },
       { key: 'portfolioReq', label: '作品集要求', icon: <Briefcase size={14} /> },
       { key: 'annualCost', label: '学杂总开支', icon: <CreditCard size={14} /> },
@@ -750,10 +753,103 @@ const generateRadarData = (selected: Institution[]) => {
   });
 };
 
+const metricLabelMap: Record<string, string> = {
+  art_school: '艺术院校',
+  art_university: '艺术大学',
+  public: '公立',
+  private: '私立',
+  public_university: '公立大学',
+  private_university: '私立大学',
+  research_university: '研究型大学',
+  comprehensive_university: '综合大学',
+  public_research_university: '公立研究型大学',
+  private_research_university: '私立研究型大学',
+  art_and_design_school: '艺术设计院校',
+  art_and_design: '艺术与设计',
+  'art_&_design': '艺术与设计',
+  'studio_art_&_fine_arts': '工作室艺术与纯艺术',
+  fine_arts: '纯艺术',
+  visual_arts: '视觉艺术',
+  visual_communication: '视觉传达',
+  interaction_design: '交互设计',
+  industrial_design: '工业设计',
+  product_design: '产品设计',
+  architecture: '建筑',
+  design: '设计',
+  art_history: '艺术史',
+  graphic_design: '平面设计',
+  communication_design: '传达设计',
+  fashion: '时尚',
+  fashion_design: '服装设计',
+  film: '电影',
+  film_and_television: '影视',
+  animation: '动画',
+  media_art: '媒体艺术',
+  digital_media: '数字媒体',
+  curation: '策展',
+  sculpture: '雕塑',
+  painting: '绘画',
+  printmaking: '版画',
+  ceramics: '陶瓷',
+  photography: '摄影',
+  installation_art: '装置艺术',
+  video_art: '影像艺术',
+  studio_art: '工作室艺术',
+  'studio_art_(bfa)': '工作室艺术 BFA',
+  'master_of_fine_arts_(mfa)': '艺术硕士 MFA',
+  mfa: '艺术硕士',
+  bfa: '艺术学士',
+  portfolio_driven: '作品集导向',
+  industry_connected: '产业连接',
+  research_led: '研究导向',
+  studio_based: '工作室制',
+  interdisciplinary: '跨学科',
+  international: '国际化',
+};
+
+const normalizeMetricLabelKey = (value: string) => value.trim().toLowerCase().replace(/[\s-]+/g, '_');
+
+const toMetricDisplayLabel = (value: unknown) => {
+  const text = String(value ?? '').trim();
+  if (!text) return '';
+  return metricLabelMap[normalizeMetricLabelKey(text)] || text;
+};
+
 const renderMetricValue = (key: string, inst: Institution) => {
   const val = (inst as any)[key];
-  if (Array.isArray(val)) return val.join(', ');
-  return val || 'N/A';
+  if (Array.isArray(val)) {
+    const englishLabels = val.map(item => String(item).trim()).filter(Boolean);
+    if (!englishLabels.length) return 'N/A';
+
+    const chineseLabels = englishLabels
+      .map(toMetricDisplayLabel)
+      .filter((label, index) => label && label !== englishLabels[index]);
+
+    return (
+      <div className="space-y-1">
+        <p>{englishLabels.join(' / ')}</p>
+        {chineseLabels.length > 0 && (
+          <p className="text-[9px] md:text-[11px] text-ink/35 font-bold leading-tight">
+            {chineseLabels.join(' / ')}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  const text = String(val ?? '').trim();
+  if (!text) return 'N/A';
+  const chineseLabel = toMetricDisplayLabel(text);
+  if (chineseLabel && chineseLabel !== text) {
+    return (
+      <div className="space-y-1">
+        <p>{text}</p>
+        <p className="text-[9px] md:text-[11px] text-ink/35 font-bold leading-tight">{chineseLabel}</p>
+      </div>
+    );
+  }
+
+  return text;
 };
 
 const idxMax = (key: string, selected: Institution[]) => {

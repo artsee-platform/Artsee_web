@@ -55,6 +55,8 @@ import { UserRole, ChatUser, Post } from './types';
 import { MOCK_POSTS } from './data';
 import { INSTITUTIONS_DATA, Institution, InstitutionData } from './data/institutions';
 import { loadInstitutionData } from './services/institutionsService';
+import { ProgramsByInstitution } from './data/programs';
+import { loadProgramsByInstitution } from './services/programsService';
 import { ChatWindow } from './components/ChatSystem';
 import { ArrowLeft } from 'lucide-react';
 
@@ -65,6 +67,7 @@ export default function App() {
   const [activeView, setActiveView] = useState('home');
   const [activeBusinessView, setActiveBusinessView] = useState('workplace');
   const [institutionsData, setInstitutionsData] = useState<InstitutionData>(INSTITUTIONS_DATA);
+  const [programsByInstitution, setProgramsByInstitution] = useState<ProgramsByInstitution>({});
   const [activeChatUser, setActiveChatUser] = useState<ChatUser | null>(null);
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -103,8 +106,13 @@ export default function App() {
   useEffect(() => {
     let isMounted = true;
 
-    loadInstitutionData().then((data) => {
-      if (isMounted) setInstitutionsData(data);
+    Promise.all([
+      loadInstitutionData(),
+      loadProgramsByInstitution(),
+    ]).then(([institutionData, programData]) => {
+      if (!isMounted) return;
+      setInstitutionsData(institutionData);
+      setProgramsByInstitution(programData);
     });
 
     return () => {
@@ -244,6 +252,22 @@ export default function App() {
     setRole(prev => (prev === 'consumer' ? 'business' : 'consumer'));
   };
 
+  const getProgramsForInstitution = (institution: Institution) => {
+    const keys = [
+      institution.id,
+      ...(institution.lookupKeys || []),
+      institution.name,
+      institution.originalName,
+    ].filter(Boolean) as string[];
+    const seen = new Set<string>();
+
+    return keys.flatMap(key => programsByInstitution[key] || []).filter(program => {
+      if (seen.has(program.id)) return false;
+      seen.add(program.id);
+      return true;
+    });
+  };
+
   const scrollMap = useRef<Record<string, number>>({});
   const ongoingScroll = useRef(0);
   const lastViewKey = useRef(currentViewKey);
@@ -355,6 +379,7 @@ export default function App() {
       return (
         <InstitutionDetailView 
           institution={selectedInstitution} 
+          programs={getProgramsForInstitution(selectedInstitution)}
           onBack={() => setSelectedInstitution(null)} 
         />
       );

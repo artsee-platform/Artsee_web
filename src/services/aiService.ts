@@ -9,6 +9,8 @@ const getAI = () => {
   return new GoogleGenAI({ apiKey });
 };
 
+const institutionDescriptionTranslationCache = new Map<string, string>();
+
 export interface AIChatMessage {
   role: 'user' | 'model';
   text: string;
@@ -71,6 +73,36 @@ Available Navigation Routes (mention these if helpful):
 - 我的 (Me): User profile, Artist dashboard
 `;
 };
+
+export async function translateInstitutionDescription(description: string, schoolName?: string) {
+  const sourceText = description.trim();
+  if (!sourceText) return "暂无中文院校简介。";
+  if (/[\u4e00-\u9fff]/.test(sourceText)) return sourceText;
+
+  const cacheKey = `${schoolName || "institution"}:${sourceText}`;
+  const cached = institutionDescriptionTranslationCache.get(cacheKey);
+  if (cached) return cached;
+
+  const ai = getAI();
+  if (!ai) return "中文简介暂未生成，请先配置 Gemini 模型密钥。";
+
+  const response = await ai.models.generateContent({
+    model: modelName,
+    contents: [{
+      role: 'user',
+      parts: [{
+        text: `请把下面这段艺术院校英文简介翻译成自然、专业、适合中文网站前端展示的中文。保留学校名、城市名、专有机构名的英文原名；不要添加原文没有的信息；不要使用 Markdown；控制在 1 到 2 个自然段。\n\n学校：${schoolName || 'Unknown'}\n英文简介：${sourceText}`,
+      }],
+    }],
+    config: {
+      temperature: 0.2,
+    },
+  });
+
+  const translated = response.text?.trim().replace(/^```[a-z]*\s*|\s*```$/gi, '') || "暂无中文院校简介。";
+  institutionDescriptionTranslationCache.set(cacheKey, translated);
+  return translated;
+}
 
 export async function chatWithAI(messages: AIChatMessage[]) {
   try {

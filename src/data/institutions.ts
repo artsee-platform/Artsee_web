@@ -1,11 +1,13 @@
 export interface Institution {
   id: string;
+  lookupKeys?: string[];
   name: string;
   originalName?: string;
   location: string;
   description: string;
   image: string;
   notableAlumni?: string[];
+  foundedYear?: string;
   schoolType?: string;
   schoolTier?: string;
   applicationDeadline?: string;
@@ -20,6 +22,8 @@ export interface Institution {
   scholarshipRate?: string;
   campusFacility?: string;
   majorStrengths?: string[];
+  featureTags?: string[];
+  strengthDisciplines?: string[];
   alumniNetwork?: string;
   radarData?: {
     academic: number;

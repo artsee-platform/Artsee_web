@@ -2,8 +2,11 @@ import { INSTITUTIONS_DATA, Institution, InstitutionData } from '../data/institu
 import { isSupabaseConfigured, selectFromSupabase } from '../lib/supabaseRest';
 
 type InstitutionRow = Record<string, any>;
+type SchoolTypeRow = Record<string, any>;
+type SchoolTypeLabelMap = Record<string, string>;
 
 const tableName = process.env.SUPABASE_INSTITUTIONS_TABLE || 'schools';
+const schoolTypesTableName = process.env.SUPABASE_SCHOOL_TYPES_TABLE || 'school_types';
 
 const regionLabelMap: Record<string, string> = {
   other_south_america: '其他南美国家',
@@ -82,25 +85,89 @@ const toRegionLabel = (value: unknown): string | undefined => {
   return regionLabelMap[key] || countryCodeLabelMap[key.toUpperCase()] || key;
 };
 
-const toStringArray = (value: unknown): string[] | undefined => {
-  if (Array.isArray(value)) return value.map(String).filter(Boolean);
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
-    } catch {
-      // Plain comma-separated strings are handled below.
-    }
-    return value.split(',').map(item => item.trim()).filter(Boolean);
-  }
-  return undefined;
-};
-
 const toDisplayString = (value: unknown): string | undefined => {
   if (value === undefined || value === null || value === '') return undefined;
-  if (Array.isArray(value)) return value.map(String).filter(Boolean).join(', ');
-  if (typeof value === 'object') return JSON.stringify(value);
-  return String(value);
+  if (Array.isArray(value)) return value.map(toDisplayString).filter(Boolean).join('、') || undefined;
+  if (typeof value === 'object') {
+    const objectValue = value as Record<string, unknown>;
+    const label = firstValue(
+      objectValue.name_zh,
+      objectValue.label_zh,
+      objectValue.title_zh,
+      objectValue.name,
+      objectValue.label,
+      objectValue.title,
+      objectValue.name_en
+    );
+    return label ? String(label).trim() : JSON.stringify(value);
+  }
+  const text = String(value).trim();
+  return text || undefined;
+};
+
+const toStringArray = (value: unknown): string[] | undefined => {
+  if (Array.isArray(value)) return value.map(toDisplayString).filter(Boolean) as string[];
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return parsed.map(toDisplayString).filter(Boolean) as string[];
+    } catch {
+      // Plain CSV, pipe, semicolon, and Postgres array strings are handled below.
+    }
+
+    const normalized = trimmed.startsWith('{') && trimmed.endsWith('}')
+      ? trimmed.slice(1, -1)
+      : trimmed;
+
+    return normalized
+      .split(/[,;|]/)
+      .map(item => item.replace(/^"|"$/g, '').trim())
+      .filter(Boolean);
+  }
+  const displayValue = toDisplayString(value);
+  return displayValue ? [displayValue] : undefined;
+};
+
+const toUniqueStrings = (values: Array<string | undefined>) => {
+  return Array.from(new Set(values.map(value => value?.trim()).filter(Boolean) as string[]));
+};
+
+const toLookupKey = (value: string) => value.trim().toLowerCase();
+
+const buildSchoolTypeLabelMap = (rows: SchoolTypeRow[]): SchoolTypeLabelMap => {
+  return rows.reduce<SchoolTypeLabelMap>((labels, row) => {
+    const code = toDisplayString(row.code);
+    const label = toDisplayString(firstValue(row.display_name_zh, row.displayNameZh, row.display_name, row.displayName));
+    if (!code || !label) return labels;
+
+    labels[code] = label;
+    labels[toLookupKey(code)] = label;
+    return labels;
+  }, {});
+};
+
+const loadSchoolTypeLabels = async (): Promise<SchoolTypeLabelMap> => {
+  try {
+    const rows = await selectFromSupabase<SchoolTypeRow>(schoolTypesTableName, {
+      select: 'code,display_name_zh,display_name',
+    });
+    if (!rows.length) {
+      console.warn('School types table returned 0 rows. If Supabase has data, check anon SELECT/RLS policy for school_types.');
+    }
+    return buildSchoolTypeLabelMap(rows);
+  } catch (error) {
+    console.warn('School type labels are unavailable; using raw school_type codes.', error);
+    return {};
+  }
+};
+
+const resolveSchoolTypeLabel = (row: InstitutionRow, schoolTypeLabels: SchoolTypeLabelMap): string | undefined => {
+  const code = toDisplayString(firstValue(row.schoolType, row.school_type));
+  if (!code) return undefined;
+  return schoolTypeLabels[code] || schoolTypeLabels[toLookupKey(code)] || code;
 };
 
 const toRank = (row: InstitutionRow): string | undefined => {
@@ -143,7 +210,7 @@ const toRadarData = (row: InstitutionRow): Institution['radarData'] | undefined 
   return Object.values(radarData).some(Boolean) ? radarData : undefined;
 };
 
-const mapInstitutionRow = (row: InstitutionRow): { region: string; institution: Institution } => {
+const mapInstitutionRow = (row: InstitutionRow, schoolTypeLabels: SchoolTypeLabelMap): { region: string; institution: Institution } => {
   const country = firstValue(row.country, row.country_name, row.countryName, row.raw_country, row.rawCountry, row.country_code);
   const city = firstValue(row.city, row.city_name, row.cityName);
   const location = String(firstValue(row.location, [city, country].filter(Boolean).join(', '), country, '未知地区'));
@@ -164,40 +231,62 @@ const mapInstitutionRow = (row: InstitutionRow): { region: string; institution: 
     )
   );
   const id = String(firstValue(row.id, row.uuid, row.slug, row.name_zh, row.name, row.name_en, crypto.randomUUID()));
+  const name = String(firstValue(row.name_zh, row.chinese_name, row.name, row.title, '未命名院校'));
+  const originalName = toDisplayString(firstValue(row.originalName, row.original_name, row.en_name, row.english_name, row.name_en));
+  const lookupKeys = toUniqueStrings([
+    id,
+    toDisplayString(row.id),
+    toDisplayString(row.uuid),
+    toDisplayString(row.slug),
+    toDisplayString(row.school_id),
+    toDisplayString(row.name),
+    toDisplayString(row.name_zh),
+    toDisplayString(row.chinese_name),
+    toDisplayString(row.title),
+    toDisplayString(row.name_en),
+    originalName,
+    name,
+  ]);
   const campusImages = toStringArray(firstValue(row.campus_image_urls, row.campusImageUrls));
+  const featureTags = toStringArray(firstValue(row.featureTags, row.feature_tags, row.tags));
+  const strengthDisciplines = toStringArray(firstValue(row.strengthDisciplines, row.strength_disciplines, row.strength_discipline));
 
   return {
     region,
     institution: {
       id,
-      name: String(firstValue(row.name, row.name_zh, row.chinese_name, row.title, '未命名院校')),
-      originalName: firstValue(row.originalName, row.original_name, row.en_name, row.english_name, row.name_en) as string | undefined,
+      lookupKeys,
+      name,
+      originalName,
       location,
-      description: String(firstValue(row.description, row.summary, row.intro, row.overview, '')),
+      description: String(firstValue(row.description_en, row.summary_en, row.intro_en, row.overview_en, row.description, row.summary, row.intro, row.overview, '')),
       image: String(firstValue(row.image, row.image_url, row.cover_url, row.cover, campusImages?.[0], row.logo_url, `https://picsum.photos/seed/${id}/800/600`)),
       notableAlumni: toStringArray(firstValue(row.notableAlumni, row.notable_alumni, row.alumni)),
-      schoolType: toDisplayString(firstValue(row.schoolType, row.school_type)),
+      foundedYear: toDisplayString(firstValue(row.foundedYear, row.founded_year, row.year_founded, row.established_year)),
+      schoolType: resolveSchoolTypeLabel(row, schoolTypeLabels),
       schoolTier: toDisplayString(firstValue(row.schoolTier, row.school_tier)),
       applicationDeadline: toDisplayString(firstValue(row.applicationDeadline, row.application_deadline, row.deadline)),
       entryScoreRequirements: toDisplayString(firstValue(row.entryScoreRequirements, row.entry_score_requirements)),
       rank: toRank(row),
       admissionDifficulty: toAdmissionDifficulty(row),
-      portfolioReq: firstValue(row.portfolioReq, row.portfolio_req, row.portfolio_requirement) as string | undefined,
-      annualCost: firstValue(row.annualCost, row.annual_cost, row.tuition, row.cost_text) as string | undefined,
-      employmentRate: firstValue(row.employmentRate, row.employment_rate) as string | undefined,
-      studentFacultyRatio: firstValue(row.studentFacultyRatio, row.student_faculty_ratio) as string | undefined,
-      scholarshipRate: firstValue(row.scholarshipRate, row.scholarship_rate) as string | undefined,
-      campusFacility: firstValue(row.campusFacility, row.campus_facility, row.facilities) as string | undefined,
-      majorStrengths: toStringArray(firstValue(row.majorStrengths, row.major_strengths, row.strengths, row.strength_disciplines, row.feature_tags, row.tags)),
-      alumniNetwork: firstValue(row.alumniNetwork, row.alumni_network) as string | undefined,
+      portfolioReq: toDisplayString(firstValue(row.portfolioReq, row.portfolio_req, row.portfolio_requirement)),
+      annualCost: toDisplayString(firstValue(row.annualCost, row.annual_cost, row.tuition, row.cost_text)),
+      employmentRate: toDisplayString(firstValue(row.employmentRate, row.employment_rate)),
+      studentFacultyRatio: toDisplayString(firstValue(row.studentFacultyRatio, row.student_faculty_ratio)),
+      scholarshipRate: toDisplayString(firstValue(row.scholarshipRate, row.scholarship_rate)),
+      campusFacility: toDisplayString(firstValue(row.campusFacility, row.campus_facility, row.facilities)),
+      majorStrengths: toStringArray(firstValue(row.majorStrengths, row.major_strengths, row.strengths, strengthDisciplines, featureTags)),
+      featureTags,
+      strengthDisciplines,
+      alumniNetwork: toDisplayString(firstValue(row.alumniNetwork, row.alumni_network)),
       radarData: toRadarData(row),
     },
   };
 };
 
-const groupInstitutionRows = (rows: InstitutionRow[]): InstitutionData => {
+const groupInstitutionRows = (rows: InstitutionRow[], schoolTypeLabels: SchoolTypeLabelMap): InstitutionData => {
   return rows.reduce<InstitutionData>((groups, row) => {
-    const { region, institution } = mapInstitutionRow(row);
+    const { region, institution } = mapInstitutionRow(row, schoolTypeLabels);
     groups[region] = groups[region] || [];
     groups[region].push(institution);
     return groups;
@@ -208,9 +297,12 @@ export async function loadInstitutionData(): Promise<InstitutionData> {
   if (!isSupabaseConfigured) return INSTITUTIONS_DATA;
 
   try {
-    const rows = await selectFromSupabase<InstitutionRow>(tableName, { select: '*' });
+    const [rows, schoolTypeLabels] = await Promise.all([
+      selectFromSupabase<InstitutionRow>(tableName, { select: '*' }),
+      loadSchoolTypeLabels(),
+    ]);
     if (!rows.length) return INSTITUTIONS_DATA;
-    return groupInstitutionRows(rows);
+    return groupInstitutionRows(rows, schoolTypeLabels);
   } catch (error) {
     console.warn('Falling back to local institution data.', error);
     return INSTITUTIONS_DATA;

@@ -3,34 +3,55 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, BookOpen, GraduationCap, Building2, Briefcase, ChevronRight, Target, Sparkles, Star, Zap, ArrowRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { MajorSectionDetail } from './MajorSectionDetails';
+import { InstitutionProgram } from '../data/programs';
 
 interface MajorHandbookViewProps {
   isOpen: boolean;
   onClose: () => void;
   majorName: string;
+  program?: InstitutionProgram | null;
 }
 
-export const MajorHandbookView = ({ isOpen, onClose, majorName }: MajorHandbookViewProps) => {
+export const MajorHandbookView = ({ isOpen, onClose, majorName, program }: MajorHandbookViewProps) => {
   const [activeDetail, setActiveDetail] = useState<'philosophy' | 'curriculum' | 'career' | null>(null);
+  const requirementItems = [
+    program?.requiresPortfolio !== undefined ? `${program.requiresPortfolio ? '需要' : '不要求'}作品集` : undefined,
+    program?.requiresInterview !== undefined ? `${program.requiresInterview ? '需要' : '不要求'}面试` : undefined,
+    program?.requiresPersonalStatement !== undefined ? `${program.requiresPersonalStatement ? '需要' : '不要求'}个人陈述` : undefined,
+    program?.minimumEducation ? `最低背景：${program.minimumEducation}` : undefined,
+  ].filter(Boolean) as string[];
+
+  const heroStatement = program?.highlights?.[0] || program?.overview || "该专业详情正在接入数据库内容，后续会补充课程结构、申请要求与职业路径。";
+  const admissionItems = [
+    ...(program?.admissionSummary ? [program.admissionSummary] : []),
+    ...(requirementItems.length ? requirementItems : []),
+    ...(program?.careerPaths?.length ? program.careerPaths : []),
+  ];
 
   const sections = [
     {
       id: 'philosophy' as const,
-      title: "核心理念 / Philosophy",
+      title: "专业概览 / Overview",
       icon: <Target size={18} />,
-      content: "该专业不仅关注视觉审美的输出，更强调‘设计作为一种社会工具’的职能。通过对未来媒介、生态系统及人类行为的深度解构，培养具备全球视野的战略型创作者。"
+      content: program?.overview || program?.description || "该专业暂未接入完整介绍。"
     },
     {
       id: 'curriculum' as const,
-      title: "课程体系 / Curriculum",
+      title: "专业亮点 / Highlights",
       icon: <GraduationCap size={18} />,
-      list: ["设计批评与史论", "动态媒介实验室", "社会创新专题研究", "高级原型开发与交付", "毕业设计：系统化叙事"]
+      list: program?.highlights?.length ? program.highlights : [
+        program?.degreeFullName,
+        program?.category,
+        program?.duration,
+        program?.studyMode,
+        program?.intakeMonths?.length ? `${program.intakeMonths.join(' / ')} 入学` : undefined,
+      ].filter(Boolean) as string[]
     },
     {
       id: 'career' as const,
-      title: "就业方向 / Career Path",
+      title: "申请与路径 / Admission",
       icon: <Briefcase size={18} />,
-      list: ["顶尖互联网公司设计专家", "独立创意机构创始人", "当代艺术家/策展人", "可持续设计战略官"]
+      list: admissionItems.length ? admissionItems : ["该专业暂未接入申请细则。"]
     }
   ];
 
@@ -51,6 +72,9 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName }: MajorHandbookV
            <div className="space-y-2 md:space-y-4">
               <span className="text-[9px] md:text-[10px] font-black text-cobalt uppercase tracking-[0.4em] italic">Major Handbook</span>
               <h2 className="text-xl md:text-3xl font-serif font-black italic text-ink leading-tight">{majorName}</h2>
+              {program?.degreeFullName && (
+                <p className="text-[10px] md:text-xs text-ink/35 font-bold uppercase tracking-widest leading-relaxed">{program.degreeFullName}</p>
+              )}
            </div>
 
            <div className="hidden md:flex flex-col gap-4">
@@ -89,9 +113,25 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName }: MajorHandbookV
             <section className="relative">
                <div className="absolute -top-10 -left-6 md:-top-20 md:-left-12 text-[120px] md:text-[200px] font-serif font-black italic text-ink/[0.03] pointer-events-none select-none">“</div>
                <p className="text-2xl md:text-5xl font-serif font-light italic text-ink leading-[1.4] relative z-10">
-                 我们培养的不是<span className="text-cobalt">装饰者</span>，而是未来文明形态的<span className="text-cobalt">重构者</span>。在这里，技术只是媒介，思想才是驱动。
+                 {heroStatement}
                </p>
             </section>
+
+            {(program?.degreeType || program?.category || program?.duration || program?.studyMode || program?.intakeMonths?.length) && (
+              <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { label: '学位', value: program?.degreeType },
+                  { label: '方向', value: program?.category },
+                  { label: '学制', value: program?.duration },
+                  { label: '入学季', value: program?.intakeMonths?.join(' / ') },
+                ].filter(item => item.value).map(item => (
+                  <div key={item.label} className="bg-porcelain/40 rounded-3xl p-6 border border-silver/10">
+                    <p className="text-[9px] font-black text-ink/25 uppercase tracking-widest mb-3">{item.label}</p>
+                    <p className="text-sm font-bold text-ink/70 leading-relaxed">{item.value}</p>
+                  </div>
+                ))}
+              </section>
+            )}
 
             {/* Sections */}
             {sections.map((section, idx) => (
@@ -138,7 +178,9 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName }: MajorHandbookV
                      <Sparkles className="text-cobalt" />
                      <span className="text-[10px] font-black uppercase tracking-[0.4em]">Pro Tips</span>
                   </div>
-                  <h4 className="text-2xl md:text-4xl font-serif font-light italic leading-tight">想要获得该专业的青睐？<br />你的作品集需要体现出强烈的<span className="text-cobalt">实验精神</span>。</h4>
+                  <h4 className="text-2xl md:text-4xl font-serif font-light italic leading-tight">
+                    {program?.admissionSummary || "想要获得该专业的青睐？你的作品集需要清楚呈现研究意识、创作过程与个人语言。"}
+                  </h4>
                   <div className="flex flex-col md:flex-row gap-6 pt-6">
                      <button className="h-14 md:h-16 px-10 bg-white text-ink rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-cobalt hover:text-white transition-all shadow-xl">预约作品集解析</button>
                      <button className="h-14 md:h-16 px-10 border border-white/20 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-white/10 transition-all">下载完整教学大纲</button>
@@ -170,4 +212,3 @@ export const MajorHandbookView = ({ isOpen, onClose, majorName }: MajorHandbookV
     </div>
   );
 };
-

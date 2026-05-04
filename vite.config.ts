@@ -13,6 +13,8 @@ export default defineConfig(({mode}) => {
       'process.env.SUPABASE_URL': JSON.stringify(env.SUPABASE_URL || env.VITE_SUPABASE_URL || ''),
       'process.env.SUPABASE_ANON_KEY': JSON.stringify(env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY || ''),
       'process.env.SUPABASE_INSTITUTIONS_TABLE': JSON.stringify(env.SUPABASE_INSTITUTIONS_TABLE || 'schools'),
+      'process.env.SUPABASE_SCHOOL_TYPES_TABLE': JSON.stringify(env.SUPABASE_SCHOOL_TYPES_TABLE || 'school_types'),
+      'process.env.SUPABASE_PROGRAMS_TABLE': JSON.stringify(env.SUPABASE_PROGRAMS_TABLE || 'programs'),
     },
     resolve: {
       alias: {

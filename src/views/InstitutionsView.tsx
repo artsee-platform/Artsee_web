@@ -11,6 +11,43 @@ interface InstitutionsViewProps {
   onCompareOpen: () => void;
 }
 
+const institutionTagLabelMap: Record<string, string> = {
+  fine_arts: '纯艺术',
+  visual_arts: '视觉艺术',
+  art_and_design: '艺术与设计',
+  'art_&_design': '艺术与设计',
+  'studio_art_&_fine_arts': '工作室艺术与纯艺术',
+  art_history: '艺术史',
+  graphic_design: '平面设计',
+  communication_design: '传达设计',
+  visual_communication: '视觉传达',
+  interaction_design: '交互设计',
+  industrial_design: '工业设计',
+  product_design: '产品设计',
+  architecture: '建筑',
+  fashion_design: '服装设计',
+  studio_art: '工作室艺术',
+  'studio_art_(bfa)': '工作室艺术 BFA',
+  'studio_art_(mfa)': '工作室艺术 MFA',
+  'master_of_fine_arts_(mfa)': '艺术硕士 MFA',
+  painting: '绘画',
+  painting_and_drawing: '绘画与素描',
+  sculpture: '雕塑',
+  printmaking: '版画',
+  ceramics: '陶瓷',
+  photography: '摄影',
+  digital_media: '数字媒体',
+  media_art: '媒体艺术',
+  theatre: '戏剧',
+  theatre_and_performance: '戏剧与表演',
+  music: '音乐',
+};
+
+const toInstitutionTagLabel = (tag: string) => {
+  const key = tag.trim().toLowerCase().replace(/[\s-]+/g, '_');
+  return institutionTagLabelMap[key] || tag;
+};
+
 export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInstitutionClick, onCompareOpen }: InstitutionsViewProps) => {
   const [activeRegion, setActiveRegion] = useState("中国香港");
   const [searchQuery, setSearchQuery] = useState("");
@@ -141,7 +178,7 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
                   {/* Middle Content: Tags - Fixed height/min-height on MD for alignment */}
                   <div className="flex flex-wrap gap-2 md:h-12 mb-4 content-start">
                     {inst.majorStrengths?.slice(0, 3).map(tag => (
-                      <span key={tag} className="px-3 py-1 bg-cobalt/5 text-cobalt rounded-full text-[9px] font-bold uppercase tracking-widest border border-cobalt/10 whitespace-nowrap">{tag}</span>
+                      <span key={tag} className="px-3 py-1 bg-cobalt/5 text-cobalt rounded-full text-[9px] font-bold tracking-widest border border-cobalt/10 whitespace-nowrap">{toInstitutionTagLabel(tag)}</span>
                     ))}
                   </div>
 

@@ -1,36 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, Share2, MapPin, Globe, GraduationCap, Award, BookOpen, MessageSquare, ClipboardCheck, ArrowRight, Heart, Users, Star, Sparkles, Zap, ChevronRight, ImageIcon, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Institution } from '../data/institutions';
+import { InstitutionProgram } from '../data/programs';
 import { cn } from '../lib/utils';
 import { ShareSheet } from '../components/ShareSheet';
 import { ConsultationSheet } from '../components/ConsultationSheet';
 import { MajorHandbookView } from '../components/MajorHandbookView';
 import { CaseDetailView } from '../components/CaseDetailView';
 import { EnrollmentSectionDetail } from '../components/EnrollmentSectionDetails';
+import { translateInstitutionDescription } from '../services/aiService';
 
 interface InstitutionDetailViewProps {
   institution: Institution;
+  programs?: InstitutionProgram[];
   onBack: () => void;
 }
 
-export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetailViewProps) => {
+export const InstitutionDetailView = ({ institution, programs = [], onBack }: InstitutionDetailViewProps) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isConsultOpen, setIsConsultOpen] = useState(false);
-  const [activeMajor, setActiveMajor] = useState<string | null>(null);
+  const [activeProgram, setActiveProgram] = useState<InstitutionProgram | null>(null);
   const [activeEnrollmentStep, setActiveEnrollmentStep] = useState<'portfolio' | 'language' | 'statement' | 'interview' | 'templates' | null>(null);
   const [isCaseViewOpen, setIsCaseViewOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [translatedDescription, setTranslatedDescription] = useState('正在整理中文简介...');
+
+  useEffect(() => {
+    let isMounted = true;
+    setTranslatedDescription(institution.description.trim() ? '正在整理中文简介...' : '暂无中文院校简介。');
+
+    translateInstitutionDescription(institution.description, institution.name)
+      .then((text) => {
+        if (isMounted) setTranslatedDescription(text);
+      })
+      .catch((error) => {
+        console.warn('Institution description translation failed.', error);
+        if (isMounted) setTranslatedDescription('中文简介暂时生成失败，请稍后再试。');
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [institution.description, institution.name]);
 
   // Mock detailed data
   const isElite = institution.rank?.includes('1') || institution.id.includes('-1');
   
-  const majors = [
-    { name: '交互设计 (Interaction Design)', desc: '融合人类体验与数字系统的核心学科，探索未来人机交互的无限可能。' },
-    { name: '视觉传达 (Visual Communication)', desc: '通过媒介叙事与设计语言，构建极具影响力的品牌与视觉体系。' },
-    { name: '工业/产品设计 (Industrial Design)', desc: '重塑物理世界的形态与功能，致力于可持续的社会创新解决方案。' },
-    { name: '纯艺术 (Fine Arts)', desc: '深度学术研究与前卫实践并重，在批判性思维中重构当代艺术语境。' },
-  ];
+  const displayPrograms = programs.slice(0, 6);
+  const aboutDescription = translatedDescription;
 
   const formatLooseLabel = (value?: string) => {
     if (!value) return '暂无数据';
@@ -43,6 +61,8 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
       college: '学院',
       comprehensive: '综合',
       design: '设计',
+      department: '系',
+      dept: '系',
       education: '教育',
       flagship: '旗舰',
       fine: '纯艺',
@@ -73,6 +93,7 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
     private_university: '私立大学',
     research_university: '研究型大学',
     comprehensive_university: '综合大学',
+    university_art_dept: '大学艺术系',
     public_research_university: '公立研究型大学',
     private_research_university: '私立研究型大学',
     art_and_design_school: '艺术设计院校',
@@ -85,6 +106,10 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
     architecture: '建筑',
     'art history': '艺术史',
     art_history: '艺术史',
+    'art and design': '艺术与设计',
+    art_and_design: '艺术与设计',
+    'art & design': '艺术与设计',
+    'studio art & fine arts': '工作室艺术与纯艺术',
     'design products': '产品设计',
     design_products: '产品设计',
     fashion: '时尚',
@@ -103,6 +128,21 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
     'graphic design': '平面设计',
     service_design: '服务设计',
     'service design': '服务设计',
+    sculpture: '雕塑',
+    painting: '绘画',
+    printmaking: '版画',
+    ceramics: '陶瓷',
+    photography: '摄影',
+    installation_art: '装置艺术',
+    'installation art': '装置艺术',
+    video_art: '影像艺术',
+    'video art': '影像艺术',
+    studio_art: '工作室艺术',
+    'studio art': '工作室艺术',
+    'studio art (bfa)': '工作室艺术 BFA',
+    'master of fine arts (mfa)': '艺术硕士 MFA',
+    mfa: '艺术硕士',
+    bfa: '艺术学士',
   };
 
   const toSchoolTypeLabel = (value?: string) => {
@@ -115,24 +155,29 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
     if (!value) return '暂无数据';
     const normalized = value.trim();
     const tierNumber = normalized.match(/\d+/)?.[0];
-    if (tierNumber) return `第 ${tierNumber} 梯队`;
+    if (tierNumber) return `Tier ${tierNumber}`;
     const tierMap: Record<string, string> = {
-      elite: '顶尖梯队',
-      elite_tier: '顶尖梯队',
-      top: '顶尖梯队',
-      top_tier: '顶尖梯队',
-      flagship: '旗舰梯队',
-      flagship_tier: '旗舰梯队',
-      high: '高竞争梯队',
-      high_tier: '高竞争梯队',
-      mid: '稳健梯队',
-      mid_tier: '稳健梯队',
-      emerging: '新锐梯队',
-      emerging_tier: '新锐梯队',
+      elite: 'Tier 1',
+      elite_tier: 'Tier 1',
+      top: 'Tier 1',
+      top_tier: 'Tier 1',
+      flagship: 'Tier 1',
+      flagship_tier: 'Tier 1',
+      high: 'Tier 2',
+      high_tier: 'Tier 2',
+      mid: 'Tier 3',
+      mid_tier: 'Tier 3',
+      emerging: 'Tier 3',
+      emerging_tier: 'Tier 3',
     };
     const key = normalized.toLowerCase();
     if (tierMap[key]) return tierMap[key];
-    return formatLooseLabel(normalized);
+    return normalized;
+  };
+
+  const toSchoolTierZhLabel = (value?: string) => {
+    const tierNumber = value?.match(/\d+/)?.[0];
+    return tierNumber ? `第 ${tierNumber} 梯队` : undefined;
   };
 
   const toDisciplineLabel = (value?: string) => {
@@ -141,11 +186,41 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
     return disciplineLabelMap[key] || formatLooseLabel(value);
   };
 
-  const strengthDisciplineText = institution.majorStrengths?.length
-    ? institution.majorStrengths.slice(0, 2).map(toDisciplineLabel).join(' / ')
+  const strengthDisciplineValues = institution.strengthDisciplines || [];
+  const visibleStrengthDisciplines = strengthDisciplineValues.slice(0, 2);
+  const strengthDisciplineText = visibleStrengthDisciplines.length
+    ? visibleStrengthDisciplines.join(' / ')
     : '暂无数据';
+  const strengthDisciplineZhText = visibleStrengthDisciplines.length
+    ? visibleStrengthDisciplines.map(toDisciplineLabel).join(' / ')
+    : undefined;
 
   const languageRequirementText = institution.entryScoreRequirements || '暂无语言成绩数据，建议以官网最新要求为准。';
+
+  const formatStudyMode = (value?: string) => {
+    if (!value) return undefined;
+    const key = value.toLowerCase();
+    const modeMap: Record<string, string> = {
+      'full-time': '全日制',
+      fulltime: '全日制',
+      'part-time': '非全日制',
+      parttime: '非全日制',
+      online: '线上',
+      hybrid: '混合授课',
+    };
+    return `${value} · ${modeMap[key] || '学习模式'}`;
+  };
+
+  const formatIntakes = (intakes?: string[]) => {
+    if (!intakes?.length) return undefined;
+    return `${intakes.join(' / ')} 入学`;
+  };
+
+  const getProgramRequirementChips = (program: InstitutionProgram) => ([
+    { label: '作品集', value: program.requiresPortfolio },
+    { label: '面试', value: program.requiresInterview },
+    { label: '个人陈述', value: program.requiresPersonalStatement },
+  ].filter(item => item.value !== undefined));
 
   const steps = [
     { title: '作品集准备', desc: '需包含15-20件原创作品，强调创作过程与设计逻辑。' },
@@ -258,8 +333,8 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
              {[
                { label: '全球综合排名', val: institution.rank || 'No. 12', icon: <Award size={14} />, color: 'text-cobalt' },
                { label: '院校类型', val: toSchoolTypeLabel(institution.schoolType), icon: <Target size={14} />, color: 'text-rose-500' },
-               { label: '院校梯队', val: toSchoolTierLabel(institution.schoolTier), icon: <Star size={14} />, color: 'text-emerald-500' },
-               { label: '优势学科', val: strengthDisciplineText, icon: <Users size={14} />, color: 'text-purple-500' },
+               { label: '院校梯队', val: toSchoolTierLabel(institution.schoolTier), subVal: toSchoolTierZhLabel(institution.schoolTier), icon: <Star size={14} />, color: 'text-emerald-500' },
+               { label: '优势学科', val: strengthDisciplineText, subVal: strengthDisciplineZhText, icon: <Users size={14} />, color: 'text-purple-500' },
              ].map((stat, i) => (
                <div key={i} className="bg-white p-6 md:p-8 rounded-3xl border border-silver/10 shadow-sm space-y-3">
                   <div className={cn("w-8 h-8 rounded-xl bg-porcelain flex items-center justify-center", stat.color)}>
@@ -267,7 +342,10 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-ink/20 uppercase tracking-widest">{stat.label}</p>
-                    <p className="text-lg md:text-2xl font-serif font-black italic mt-1 leading-tight">{stat.val}</p>
+                    <p className="text-base md:text-xl font-serif font-black italic mt-1 leading-tight">{stat.val}</p>
+                    {stat.subVal && (
+                      <p className="text-[10px] md:text-xs text-ink/35 font-bold mt-1 leading-tight">{stat.subVal}</p>
+                    )}
                   </div>
                </div>
              ))}
@@ -283,12 +361,11 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
               关于院校剖析
             </h2>
             <p className="text-base md:text-lg text-ink/60 leading-relaxed font-light italic">
-              {institution.description} 该校不仅是一个学术殿堂，更是一场关于未来文明形态的实验场。在这里，传统的界限被打破，学科的融合催生出最具革命性的艺术表达。
+              {aboutDescription}
             </p>
           </section>
 
-          {(institution.applicationDeadline || institution.notableAlumni?.length) && (
-            <section className="grid md:grid-cols-2 gap-6 md:gap-8">
+          <section className="grid md:grid-cols-2 gap-6 md:gap-8">
               <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-8 md:p-10 border border-silver/20 shadow-sm space-y-5">
                 <div className="flex items-center justify-between gap-4">
                   <div className="w-12 h-12 bg-porcelain rounded-2xl flex items-center justify-center text-cobalt">
@@ -318,8 +395,7 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
                   </p>
                 </div>
               </div>
-            </section>
-          )}
+          </section>
 
           {/* Popular Majors */}
           <section className="space-y-8 md:space-y-12">
@@ -328,22 +404,73 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
               <p className="text-[9px] font-black text-ink/30 uppercase tracking-widest">Major Encyclopedias</p>
             </div>
             <div className="grid sm:grid-cols-2 gap-6 md:gap-8">
-              {majors.map((major, i) => (
+              {displayPrograms.length > 0 ? displayPrograms.map((program) => {
+                const metaItems = [
+                  { label: '专业方向', value: program.category },
+                  { label: '学制', value: program.duration },
+                  { label: '入学季', value: formatIntakes(program.intakeMonths) },
+                  { label: '学习模式', value: formatStudyMode(program.studyMode) },
+                ].filter(item => item.value);
+                const requirementChips = getProgramRequirementChips(program);
+                const summaryText = program.highlights?.[0] || program.overview || program.admissionSummary || '该专业暂无详细介绍。';
+
+                return (
                 <button 
-                  key={i} 
-                  onClick={() => setActiveMajor(major.name)}
+                  key={program.id} 
+                  onClick={() => setActiveProgram(program)}
                   className="group w-full text-left bg-white rounded-3xl md:rounded-[2.5rem] p-8 md:p-10 border border-silver/20 hover:border-cobalt hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
                 >
                   <div className="flex items-center justify-between mb-8">
                     <div className="w-12 h-12 bg-silver/10 rounded-2xl flex items-center justify-center text-ink/20 group-hover:bg-cobalt group-hover:text-white transition-all">
                       <BookOpen size={20} />
                     </div>
-                    <div className="px-4 py-1 bg-porcelain rounded-full text-[9px] font-black text-ink/30 uppercase tracking-widest">Detail Handbook</div>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      {program.isRecommended && (
+                        <span className="px-3 py-1 bg-cobalt/10 rounded-full text-[8px] font-black text-cobalt uppercase tracking-widest">推荐</span>
+                      )}
+                      <span className="px-4 py-1 bg-porcelain rounded-full text-[9px] font-black text-ink/30 uppercase tracking-widest">{program.degreeType || program.degree || 'Program'}</span>
+                    </div>
                   </div>
-                  <h4 className="text-xl md:text-2xl font-serif font-bold text-ink mb-3 md:mb-4 group-hover:text-cobalt transition-colors italic">{major.name}</h4>
-                  <p className="text-xs md:text-sm text-ink/40 leading-relaxed font-light line-clamp-2 italic">{major.desc}</p>
+                  <h4 className="text-xl md:text-2xl font-serif font-bold text-ink mb-3 group-hover:text-cobalt transition-colors italic">{program.name}</h4>
+                  {(program.degreeFullName || program.originalName) && (
+                    <p className="text-[10px] text-ink/25 font-black uppercase tracking-widest mb-5 line-clamp-2">{program.degreeFullName || program.originalName}</p>
+                  )}
+                  {metaItems.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 mb-5">
+                      {metaItems.slice(0, 4).map(item => (
+                        <div key={item.label} className="bg-porcelain/70 rounded-2xl px-3 py-2">
+                          <p className="text-[8px] font-black text-ink/25 uppercase tracking-widest mb-1">{item.label}</p>
+                          <p className="text-[10px] font-bold text-ink/55 line-clamp-1">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {requirementChips.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {requirementChips.map(item => (
+                        <span
+                          key={item.label}
+                          className={cn(
+                            "px-3 py-1 rounded-full text-[9px] font-black tracking-widest",
+                            item.value ? "bg-cobalt/10 text-cobalt" : "bg-silver/10 text-ink/30"
+                          )}
+                        >
+                          {item.value ? `需${item.label}` : `免${item.label}`}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs md:text-sm text-ink/40 leading-relaxed font-light line-clamp-2 italic">
+                    {summaryText}
+                  </p>
                 </button>
-              ))}
+                );
+              }) : (
+                <div className="sm:col-span-2 bg-white rounded-3xl md:rounded-[2.5rem] p-8 md:p-10 border border-dashed border-silver/30 text-center space-y-3">
+                  <BookOpen size={24} className="mx-auto text-ink/10" />
+                  <p className="text-sm font-bold text-ink/30 italic">该校暂未接入 programs 表专业数据。</p>
+                </div>
+              )}
             </div>
           </section>
         </div>
@@ -444,9 +571,10 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
       />
 
       <MajorHandbookView 
-        isOpen={!!activeMajor}
-        onClose={() => setActiveMajor(null)}
-        majorName={activeMajor || ''}
+        isOpen={!!activeProgram}
+        onClose={() => setActiveProgram(null)}
+        majorName={activeProgram?.name || ''}
+        program={activeProgram}
       />
 
       <CaseDetailView 
