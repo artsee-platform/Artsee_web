@@ -96,6 +96,13 @@ const toStringArray = (value: unknown): string[] | undefined => {
   return undefined;
 };
 
+const toDisplayString = (value: unknown): string | undefined => {
+  if (value === undefined || value === null || value === '') return undefined;
+  if (Array.isArray(value)) return value.map(String).filter(Boolean).join(', ');
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+};
+
 const toRank = (row: InstitutionRow): string | undefined => {
   const explicitRank = firstValue(row.rank, row.ranking);
   if (explicitRank) return String(explicitRank);
@@ -169,9 +176,13 @@ const mapInstitutionRow = (row: InstitutionRow): { region: string; institution: 
       description: String(firstValue(row.description, row.summary, row.intro, row.overview, '')),
       image: String(firstValue(row.image, row.image_url, row.cover_url, row.cover, campusImages?.[0], row.logo_url, `https://picsum.photos/seed/${id}/800/600`)),
       notableAlumni: toStringArray(firstValue(row.notableAlumni, row.notable_alumni, row.alumni)),
+      schoolType: toDisplayString(firstValue(row.schoolType, row.school_type)),
+      schoolTier: toDisplayString(firstValue(row.schoolTier, row.school_tier)),
+      applicationDeadline: toDisplayString(firstValue(row.applicationDeadline, row.application_deadline, row.deadline)),
+      entryScoreRequirements: toDisplayString(firstValue(row.entryScoreRequirements, row.entry_score_requirements)),
       rank: toRank(row),
       admissionDifficulty: toAdmissionDifficulty(row),
-      portfolioReq: firstValue(row.portfolioReq, row.portfolio_req, row.portfolio_requirement, row.entry_score_requirements) as string | undefined,
+      portfolioReq: firstValue(row.portfolioReq, row.portfolio_req, row.portfolio_requirement) as string | undefined,
       annualCost: firstValue(row.annualCost, row.annual_cost, row.tuition, row.cost_text) as string | undefined,
       employmentRate: firstValue(row.employmentRate, row.employment_rate) as string | undefined,
       studentFacultyRatio: firstValue(row.studentFacultyRatio, row.student_faculty_ratio) as string | undefined,

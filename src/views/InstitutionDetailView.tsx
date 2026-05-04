@@ -32,9 +32,124 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
     { name: '纯艺术 (Fine Arts)', desc: '深度学术研究与前卫实践并重，在批判性思维中重构当代艺术语境。' },
   ];
 
+  const formatLooseLabel = (value?: string) => {
+    if (!value) return '暂无数据';
+    const cleanValue = value.replace(/[_-]/g, ' ').replace(/\s+/g, ' ').trim();
+    const tokenMap: Record<string, string> = {
+      academy: '学院',
+      and: '',
+      art: '艺术',
+      arts: '艺术',
+      college: '学院',
+      comprehensive: '综合',
+      design: '设计',
+      education: '教育',
+      flagship: '旗舰',
+      fine: '纯艺',
+      institute: '学院',
+      liberal: '博雅',
+      private: '私立',
+      public: '公立',
+      research: '研究型',
+      school: '院校',
+      specialist: '专业型',
+      university: '大学',
+      visual: '视觉',
+    };
+    const translated = cleanValue
+      .toLowerCase()
+      .split(' ')
+      .map(token => tokenMap[token] ?? token)
+      .join('');
+    return /[a-z]/i.test(translated) ? cleanValue : translated;
+  };
+
+  const schoolTypeLabelMap: Record<string, string> = {
+    art_school: '艺术院校',
+    art_university: '艺术大学',
+    public: '公立院校',
+    private: '私立院校',
+    public_university: '公立大学',
+    private_university: '私立大学',
+    research_university: '研究型大学',
+    comprehensive_university: '综合大学',
+    public_research_university: '公立研究型大学',
+    private_research_university: '私立研究型大学',
+    art_and_design_school: '艺术设计院校',
+    art_design_school: '艺术设计院校',
+    college: '学院',
+    university: '大学',
+  };
+
+  const disciplineLabelMap: Record<string, string> = {
+    architecture: '建筑',
+    'art history': '艺术史',
+    art_history: '艺术史',
+    'design products': '产品设计',
+    design_products: '产品设计',
+    fashion: '时尚',
+    'fashion design': '服装设计',
+    fashion_design: '服装设计',
+    'fine arts': '纯艺术',
+    fine_arts: '纯艺术',
+    illustration: '插画',
+    interaction_design: '交互设计',
+    'interaction design': '交互设计',
+    visual_arts: '视觉艺术',
+    'visual arts': '视觉艺术',
+    visual_communication: '视觉传达',
+    'visual communication': '视觉传达',
+    graphic_design: '平面设计',
+    'graphic design': '平面设计',
+    service_design: '服务设计',
+    'service design': '服务设计',
+  };
+
+  const toSchoolTypeLabel = (value?: string) => {
+    if (!value) return '暂无数据';
+    const key = value.trim().toLowerCase();
+    return schoolTypeLabelMap[key] || formatLooseLabel(value);
+  };
+
+  const toSchoolTierLabel = (value?: string) => {
+    if (!value) return '暂无数据';
+    const normalized = value.trim();
+    const tierNumber = normalized.match(/\d+/)?.[0];
+    if (tierNumber) return `第 ${tierNumber} 梯队`;
+    const tierMap: Record<string, string> = {
+      elite: '顶尖梯队',
+      elite_tier: '顶尖梯队',
+      top: '顶尖梯队',
+      top_tier: '顶尖梯队',
+      flagship: '旗舰梯队',
+      flagship_tier: '旗舰梯队',
+      high: '高竞争梯队',
+      high_tier: '高竞争梯队',
+      mid: '稳健梯队',
+      mid_tier: '稳健梯队',
+      emerging: '新锐梯队',
+      emerging_tier: '新锐梯队',
+    };
+    const key = normalized.toLowerCase();
+    if (tierMap[key]) return tierMap[key];
+    return formatLooseLabel(normalized);
+  };
+
+  const toDisciplineLabel = (value?: string) => {
+    if (!value) return '暂无数据';
+    const key = value.trim().toLowerCase();
+    return disciplineLabelMap[key] || formatLooseLabel(value);
+  };
+
+  const strengthDisciplineText = institution.majorStrengths?.length
+    ? institution.majorStrengths.slice(0, 2).map(toDisciplineLabel).join(' / ')
+    : '暂无数据';
+
+  const languageRequirementText = institution.entryScoreRequirements || '暂无语言成绩数据，建议以官网最新要求为准。';
+
   const steps = [
     { title: '作品集准备', desc: '需包含15-20件原创作品，强调创作过程与设计逻辑。' },
-    { title: '语言成绩', desc: 'IELTS 6.5+ 或 TOEFL 90+，具体视院系要求而定。' },
+    { title: '语言成绩', desc: languageRequirementText },
     { title: '个人陈述', desc: '阐述艺术见解、研究目标以及为何选择本校。' },
     { title: '导师面试', desc: '通过作品集演示与深度对谈，展现你的创造潜能。' },
   ];
@@ -142,9 +257,9 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
              {[
                { label: '全球综合排名', val: institution.rank || 'No. 12', icon: <Award size={14} />, color: 'text-cobalt' },
-               { label: '官方录取率', val: '12.5%', icon: <Target size={14} />, color: 'text-rose-500' },
-               { label: '学生满意度', val: '98%', icon: <Star size={14} />, color: 'text-emerald-500' },
-               { label: '师生配比', val: '1:12', icon: <Users size={14} />, color: 'text-purple-500' },
+               { label: '院校类型', val: toSchoolTypeLabel(institution.schoolType), icon: <Target size={14} />, color: 'text-rose-500' },
+               { label: '院校梯队', val: toSchoolTierLabel(institution.schoolTier), icon: <Star size={14} />, color: 'text-emerald-500' },
+               { label: '优势学科', val: strengthDisciplineText, icon: <Users size={14} />, color: 'text-purple-500' },
              ].map((stat, i) => (
                <div key={i} className="bg-white p-6 md:p-8 rounded-3xl border border-silver/10 shadow-sm space-y-3">
                   <div className={cn("w-8 h-8 rounded-xl bg-porcelain flex items-center justify-center", stat.color)}>
@@ -152,7 +267,7 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-ink/20 uppercase tracking-widest">{stat.label}</p>
-                    <p className="text-xl md:text-2xl font-serif font-black italic mt-1">{stat.val}</p>
+                    <p className="text-lg md:text-2xl font-serif font-black italic mt-1 leading-tight">{stat.val}</p>
                   </div>
                </div>
              ))}
@@ -171,6 +286,40 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
               {institution.description} 该校不仅是一个学术殿堂，更是一场关于未来文明形态的实验场。在这里，传统的界限被打破，学科的融合催生出最具革命性的艺术表达。
             </p>
           </section>
+
+          {(institution.applicationDeadline || institution.notableAlumni?.length) && (
+            <section className="grid md:grid-cols-2 gap-6 md:gap-8">
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-8 md:p-10 border border-silver/20 shadow-sm space-y-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="w-12 h-12 bg-porcelain rounded-2xl flex items-center justify-center text-cobalt">
+                    <ClipboardCheck size={20} />
+                  </div>
+                  <span className="text-[9px] font-black text-ink/25 uppercase tracking-widest">Deadline</span>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl md:text-2xl font-serif font-black text-ink italic">申请截止信息</h3>
+                  <p className="text-sm md:text-base text-ink/50 leading-relaxed font-medium italic">
+                    {institution.applicationDeadline || '暂无申请截止时间数据，建议以官网最新招生页面为准。'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] p-8 md:p-10 border border-silver/20 shadow-sm space-y-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="w-12 h-12 bg-porcelain rounded-2xl flex items-center justify-center text-cobalt">
+                    <Users size={20} />
+                  </div>
+                  <span className="text-[9px] font-black text-ink/25 uppercase tracking-widest">Alumni</span>
+                </div>
+                <div className="space-y-3">
+                  <h3 className="text-xl md:text-2xl font-serif font-black text-ink italic">知名校友</h3>
+                  <p className="text-sm md:text-base text-ink/50 leading-relaxed font-medium italic">
+                    {institution.notableAlumni?.length ? institution.notableAlumni.join('、') : '暂无知名校友数据。'}
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Popular Majors */}
           <section className="space-y-8 md:space-y-12">
@@ -311,6 +460,7 @@ export const InstitutionDetailView = ({ institution, onBack }: InstitutionDetail
           <EnrollmentSectionDetail 
             type={activeEnrollmentStep} 
             onClose={() => setActiveEnrollmentStep(null)} 
+            languageRequirement={institution.entryScoreRequirements}
           />
         )}
       </AnimatePresence>

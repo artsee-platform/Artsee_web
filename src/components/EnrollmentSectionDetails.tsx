@@ -6,6 +6,7 @@ import { cn } from '../lib/utils';
 interface EnrollmentSectionDetailProps {
   type: 'portfolio' | 'language' | 'statement' | 'interview' | 'templates';
   onClose: () => void;
+  languageRequirement?: string;
 }
 
 // --- Portfolio Detail ---
@@ -82,7 +83,7 @@ const PortfolioDetail = () => (
 );
 
 // --- Language Detail ---
-const LanguageDetail = () => (
+const LanguageDetail = ({ requirement }: { requirement?: string }) => (
   <div className="flex flex-col md:flex-row h-full">
     <div className="w-full md:w-1/2 h-64 md:h-full relative overflow-hidden bg-ink flex items-center justify-center p-12">
        <div className="text-center space-y-6 relative z-10">
@@ -113,21 +114,14 @@ const LanguageDetail = () => (
             <div className="w-10 h-[1px] bg-cobalt" />
             <span className="text-[10px] font-black uppercase tracking-widest italic">Score Requirements</span>
           </div>
-          <div className="grid grid-cols-1 gap-4">
-             <div className="p-8 border border-silver/20 rounded-3xl space-y-4 hover:border-cobalt transition-colors group">
-                <div className="flex items-center justify-between">
-                   <h4 className="text-xl font-serif font-bold italic text-ink">雅思 (IELTS)</h4>
-                   <span className="text-sm font-bold text-cobalt">Min 6.5</span>
-                </div>
-                <p className="text-xs text-ink/40 leading-relaxed font-medium">单项不低于 6.0，排名靠前院校建议 7.0。</p>
+          <div className="p-8 border border-silver/20 rounded-3xl space-y-4 hover:border-cobalt transition-colors group">
+             <div className="flex items-center justify-between gap-4">
+                <h4 className="text-xl font-serif font-bold italic text-ink">数据库语言要求</h4>
+                <span className="text-[10px] font-black text-cobalt uppercase tracking-widest">Official Field</span>
              </div>
-             <div className="p-8 border border-silver/20 rounded-3xl space-y-4 hover:border-cobalt transition-colors group">
-                <div className="flex items-center justify-between">
-                   <h4 className="text-xl font-serif font-bold italic text-ink">托福 (TOEFL)</h4>
-                   <span className="text-sm font-bold text-cobalt">Min 90</span>
-                </div>
-                <p className="text-xs text-ink/40 leading-relaxed font-medium">建议 100+，听力与口语部分权重较高。</p>
-             </div>
+             <p className="text-sm text-ink/50 leading-relaxed font-medium">
+                {requirement || '暂无语言成绩数据，建议以官网最新要求为准。'}
+             </p>
           </div>
        </section>
 
@@ -310,7 +304,7 @@ const TemplatesDetail = () => (
 );
 
 // --- Main Container ---
-export const EnrollmentSectionDetail = ({ type, onClose }: EnrollmentSectionDetailProps) => {
+export const EnrollmentSectionDetail = ({ type, onClose, languageRequirement }: EnrollmentSectionDetailProps) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -336,7 +330,7 @@ export const EnrollmentSectionDetail = ({ type, onClose }: EnrollmentSectionDeta
 
         <div className="h-full">
            {type === 'portfolio' && <PortfolioDetail />}
-           {type === 'language' && <LanguageDetail />}
+           {type === 'language' && <LanguageDetail requirement={languageRequirement} />}
            {type === 'statement' && <StatementDetail />}
            {type === 'interview' && <InterviewDetail />}
            {type === 'templates' && <TemplatesDetail />}

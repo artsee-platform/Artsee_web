@@ -6,6 +6,10 @@ export interface Institution {
   description: string;
   image: string;
   notableAlumni?: string[];
+  schoolType?: string;
+  schoolTier?: string;
+  applicationDeadline?: string;
+  entryScoreRequirements?: string;
   rank?: string;
   // Comparison Metrics
   admissionDifficulty?: string;
