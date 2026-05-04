@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'motion/react';
-import { Plus, X, Sparkles, Trophy, Target, CreditCard, Users, Briefcase, BarChart3, Info, Search, Filter, Layers, Zap, EyeOff, CheckCircle2, Clock } from 'lucide-react';
+import { Plus, X, Sparkles, Trophy, Target, CreditCard, Users, Briefcase, BarChart3, Info, Search, Filter, Layers, Zap, EyeOff, CheckCircle2, Clock, ChevronLeft } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Institution, INSTITUTIONS_DATA, InstitutionData } from '../data/institutions';
 import { analyzeInstitutions } from '../services/aiService';
@@ -66,7 +66,7 @@ export const ComparisonCenterView = ({ onBack, onInstitutionClick, institutionsD
       { key: 'foundedYear', label: '创立年份', icon: <Clock size={14} /> },
       { key: 'featureTags', label: '特色标签', icon: <Sparkles size={14} /> },
       { key: 'strengthDisciplines', label: '优势学科', icon: <Layers size={14} /> },
-      { key: 'admissionDifficulty', label: '录取率', icon: <Target size={14} /> },
+      { key: 'admissionDifficulty', label: '申请难度梯队', icon: <Target size={14} /> },
       { key: 'portfolioReq', label: '作品集要求', icon: <Briefcase size={14} /> },
       { key: 'annualCost', label: '学杂总开支', icon: <CreditCard size={14} /> },
     ],
@@ -127,7 +127,21 @@ export const ComparisonCenterView = ({ onBack, onInstitutionClick, institutionsD
   ];
 
   return (
-    <div className="space-y-16 pb-32">
+    <div className="relative min-h-screen -mx-4 md:-mx-8 -mt-8 md:-mt-12">
+      <header className="fixed top-0 inset-x-0 h-16 md:h-20 bg-white/50 backdrop-blur-3xl border-b border-silver/30 z-50 flex items-center px-4 md:px-8">
+        <button
+          type="button"
+          onClick={onBack}
+          className="group flex items-center gap-2 md:gap-3 p-1 md:p-2 -ml-1 md:-ml-2 hover:bg-black/5 rounded-full transition-all"
+        >
+          <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-silver/20 group-hover:text-cobalt">
+            <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+          </div>
+          <span className="text-[10px] font-bold text-ink tracking-[0.35em] hidden md:block">返回</span>
+        </button>
+      </header>
+
+      <div className="pt-20 md:pt-24 space-y-16 pb-32">
       {/* Header Section */}
       <section className="bg-ink rounded-3xl md:rounded-[4rem] p-6 md:p-8 lg:py-10 lg:px-20 text-white relative overflow-hidden shadow-3xl">
         <div className="absolute top-0 right-0 w-[80%] md:w-[60%] h-full bg-gradient-to-l from-cobalt/20 to-transparent blur-[80px] md:blur-[120px]" />
@@ -727,6 +741,7 @@ export const ComparisonCenterView = ({ onBack, onInstitutionClick, institutionsD
           />
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 };
@@ -868,7 +883,7 @@ const idxMax = (key: string, selected: Institution[]) => {
     return selected.reduce((prev, curr) => {
       const pVal = parseInt(prev.admissionDifficulty?.match(/\d+/)?.[0] || '100');
       const cVal = parseInt(curr.admissionDifficulty?.match(/\d+/)?.[0] || '100');
-      // For录取率, lower is usually more "prestigious"
+      // Tier n or %-style string: lower number = more selective / upper tier
       return pVal < cVal ? prev : curr;
     }).id;
   }
