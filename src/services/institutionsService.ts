@@ -262,6 +262,7 @@ const mapInstitutionRow = (
 ): { region: string; institution: Institution } => {
   const country = firstValue(row.country, row.country_name, row.countryName, row.raw_country, row.rawCountry, row.country_code);
   const city = firstValue(row.city, row.city_name, row.cityName);
+  const regionTag = toDisplayString(firstValue(row.region_tag, row.regionTag));
   const location = String(firstValue(row.location, [city, country].filter(Boolean).join(', '), country, '未知地区'));
   const region = String(
     firstValue(
@@ -307,6 +308,7 @@ const mapInstitutionRow = (
       lookupKeys,
       name,
       originalName,
+      regionTag,
       location,
       description: String(firstValue(row.description_en, row.summary_en, row.intro_en, row.overview_en, row.description, row.summary, row.intro, row.overview, '')),
       image: String(firstValue(row.image, row.image_url, row.cover_url, row.cover, campusImages?.[0], row.logo_url, `https://picsum.photos/seed/${id}/800/600`)),

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { INSTITUTIONS_DATA, Institution, InstitutionData } from '../data/institutions';
-import { Search, MapPin, ExternalLink, GraduationCap, ChevronRight, Sparkles, Zap } from 'lucide-react';
+import { Search, ExternalLink, GraduationCap, ChevronRight, Sparkles, Zap, SlidersHorizontal, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ShareSheet } from '../components/ShareSheet';
 
@@ -48,13 +48,53 @@ const toInstitutionTagLabel = (tag: string) => {
   return institutionTagLabelMap[key] || tag;
 };
 
+const toUniqueOptions = (values: Array<string | undefined>) => {
+  return Array.from(new Set(values.map(value => value?.trim()).filter(Boolean) as string[]))
+    .sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'));
+};
+
+const toUniqueArrayOptions = (values: Array<string[] | undefined>) => {
+  return toUniqueOptions(values.flatMap(value => value || []));
+};
+
+interface FilterSelectProps {
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+}
+
+const FilterSelect = ({ label, value, options, onChange }: FilterSelectProps) => (
+  <label className="min-w-[9rem] flex-1 md:flex-none space-y-2">
+    <span className="text-[8px] md:text-[9px] font-black text-ink/30 uppercase tracking-[0.25em]">{label}</span>
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      disabled={!options.length}
+      className="w-full h-10 px-3 bg-white/70 border border-silver/30 rounded-xl text-[10px] md:text-[11px] font-bold text-ink/60 outline-none transition-all hover:border-cobalt/30 focus:border-cobalt/40 disabled:cursor-not-allowed disabled:text-ink/20"
+    >
+      <option value="">全部{label}</option>
+      {options.map(option => (
+        <option key={option} value={option}>{option}</option>
+      ))}
+    </select>
+  </label>
+);
+
 export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInstitutionClick, onCompareOpen }: InstitutionsViewProps) => {
   const [activeRegion, setActiveRegion] = useState("中国香港");
   const [searchQuery, setSearchQuery] = useState("");
+  const [regionTagFilter, setRegionTagFilter] = useState("");
+  const [schoolTypeFilter, setSchoolTypeFilter] = useState("");
+  const [strengthFilter, setStrengthFilter] = useState("");
   const [shareInst, setShareInst] = useState<Institution | null>(null);
 
   const regions = useMemo(() => Object.keys(institutionsData), [institutionsData]);
   const allInstitutions = useMemo(() => Object.values(institutionsData).flat(), [institutionsData]);
+  const hasAdvancedFilters = !!(regionTagFilter || schoolTypeFilter || strengthFilter);
+  const regionTagOptions = useMemo(() => toUniqueOptions(allInstitutions.map(inst => inst.regionTag)), [allInstitutions]);
+  const schoolTypeOptions = useMemo(() => toUniqueOptions(allInstitutions.map(inst => inst.schoolType)), [allInstitutions]);
+  const strengthOptions = useMemo(() => toUniqueArrayOptions(allInstitutions.map(inst => inst.strengthDisciplines || inst.majorStrengths)), [allInstitutions]);
 
   useEffect(() => {
     if (regions.length && !regions.includes(activeRegion)) {
@@ -62,12 +102,38 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
     }
   }, [activeRegion, regions]);
   
-  const currentInstitutions = searchQuery.trim() !== ""
-    ? allInstitutions.filter(inst => 
-        inst.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        inst.originalName?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : institutionsData[activeRegion] || [];
+  const currentInstitutions = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const base = query || hasAdvancedFilters ? allInstitutions : institutionsData[activeRegion] || [];
+
+    return base.filter(inst => {
+      const matchesSearch = !query ||
+        inst.name.toLowerCase().includes(query) ||
+        inst.originalName?.toLowerCase().includes(query) ||
+        inst.location.toLowerCase().includes(query);
+      const matchesRegionTag = !regionTagFilter || inst.regionTag === regionTagFilter;
+      const matchesSchoolType = !schoolTypeFilter || inst.schoolType === schoolTypeFilter;
+      const strengths = inst.strengthDisciplines || inst.majorStrengths || [];
+      const matchesStrength = !strengthFilter || strengths.includes(strengthFilter);
+
+      return matchesSearch && matchesRegionTag && matchesSchoolType && matchesStrength;
+    });
+  }, [
+    activeRegion,
+    allInstitutions,
+    hasAdvancedFilters,
+    institutionsData,
+    regionTagFilter,
+    schoolTypeFilter,
+    searchQuery,
+    strengthFilter,
+  ]);
+
+  const resetFilters = () => {
+    setRegionTagFilter("");
+    setSchoolTypeFilter("");
+    setStrengthFilter("");
+  };
 
   return (
     <div className="bg-porcelain min-h-screen pb-20 selection:bg-cobalt selection:text-white">
@@ -125,6 +191,7 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
                 onClick={() => {
                   setActiveRegion(region);
                   setSearchQuery(""); 
+                  resetFilters();
                 }}
                 className={cn(
                   "px-4 py-2 rounded-lg text-[8px] md:text-[11px] font-bold tracking-normal transition-all",
@@ -137,6 +204,37 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
               </button>
             ))}
           </nav>
+        </div>
+
+        {/* School Metadata Filters */}
+        <div className="mb-8 rounded-2xl border border-silver/20 bg-white/60 backdrop-blur-xl p-4 md:p-5 shadow-sm">
+          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-cobalt/5 text-cobalt flex items-center justify-center">
+                <SlidersHorizontal size={16} />
+              </div>
+              <div>
+                <p className="text-xs font-black text-ink tracking-wide">院校筛选</p>
+                <p className="text-[9px] text-ink/30 font-bold uppercase tracking-[0.25em]">Region Tag / Type / Strengths</p>
+              </div>
+            </div>
+            {hasAdvancedFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="w-fit flex items-center gap-2 px-3 py-2 rounded-xl bg-silver/20 text-[9px] font-black text-ink/40 uppercase tracking-widest hover:bg-cobalt hover:text-white transition-all"
+              >
+                <X size={12} />
+                清除筛选
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-col md:flex-row md:flex-wrap gap-3">
+            <FilterSelect label="区域标签" value={regionTagFilter} options={regionTagOptions} onChange={setRegionTagFilter} />
+            <FilterSelect label="院校类型" value={schoolTypeFilter} options={schoolTypeOptions} onChange={setSchoolTypeFilter} />
+            <FilterSelect label="优势学科" value={strengthFilter} options={strengthOptions} onChange={setStrengthFilter} />
+          </div>
         </div>
 
         {/* List Content */}

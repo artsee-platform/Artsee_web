@@ -3,6 +3,7 @@ export interface Institution {
   lookupKeys?: string[];
   name: string;
   originalName?: string;
+  regionTag?: string;
   location: string;
   description: string;
   image: string;
