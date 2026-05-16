@@ -2,11 +2,14 @@ import { INSTITUTIONS_DATA, Institution, InstitutionData } from '../data/institu
 import { isSupabaseConfigured, selectFromSupabase } from '../lib/supabaseRest';
 
 type InstitutionRow = Record<string, any>;
+type RadarMetricRow = Record<string, any>;
 type SchoolTypeRow = Record<string, any>;
 type SchoolTypeLabelMap = Record<string, string>;
+type RadarMetricMap = Record<string, Institution['radarData']>;
 
 const tableName = process.env.SUPABASE_INSTITUTIONS_TABLE || 'schools';
 const schoolTypesTableName = process.env.SUPABASE_SCHOOL_TYPES_TABLE || 'school_types';
+const radarMetricsTableName = process.env.SUPABASE_SCHOOL_RADAR_METRICS_TABLE || 'school_radar_metrics';
 
 const regionLabelMap: Record<string, string> = {
   other_south_america: '其他南美国家',
@@ -137,6 +140,18 @@ const toUniqueStrings = (values: Array<string | undefined>) => {
 
 const toLookupKey = (value: string) => value.trim().toLowerCase();
 
+const toFiniteNumber = (value: unknown): number | undefined => {
+  if (value === undefined || value === null || value === '') return undefined;
+  const numericValue = Number(String(value).replace(/^["']|["']$/g, '').trim());
+  return Number.isFinite(numericValue) ? numericValue : undefined;
+};
+
+const toRadarScore = (value: unknown): number | undefined => {
+  const score = toFiniteNumber(value);
+  if (score === undefined) return undefined;
+  return Math.max(0, Math.min(100, Math.round(score)));
+};
+
 const buildSchoolTypeLabelMap = (rows: SchoolTypeRow[]): SchoolTypeLabelMap => {
   return rows.reduce<SchoolTypeLabelMap>((labels, row) => {
     const code = toDisplayString(row.code);
@@ -199,18 +214,52 @@ const toRadarData = (row: InstitutionRow): Institution['radarData'] | undefined 
   if (radar && typeof radar === 'object') return radar as Institution['radarData'];
 
   const radarData = {
-    academic: Number(firstValue(row.academic, row.academic_score, row.academicScore, 0)),
-    employment: Number(firstValue(row.employment, row.employment_score, row.employmentScore, 0)),
-    facility: Number(firstValue(row.facility, row.facility_score, row.facilityScore, 0)),
-    cost: Number(firstValue(row.cost, row.cost_score, row.costScore, 0)),
-    reputation: Number(firstValue(row.reputation, row.reputation_score, row.reputationScore, 0)),
-    innovation: Number(firstValue(row.innovation, row.innovation_score, row.innovationScore, 0)),
+    academic: toRadarScore(firstValue(row.academic, row.academic_score, row.academicScore)),
+    employment: toRadarScore(firstValue(row.employment, row.employment_score, row.employmentScore)),
+    facility: toRadarScore(firstValue(row.facility, row.facility_score, row.facilityScore)),
+    cost: toRadarScore(firstValue(row.cost, row.cost_score, row.costScore)),
+    reputation: toRadarScore(firstValue(row.reputation, row.reputation_score, row.reputationScore)),
+    innovation: toRadarScore(firstValue(row.innovation, row.innovation_score, row.innovationScore)),
   };
 
-  return Object.values(radarData).some(Boolean) ? radarData : undefined;
+  if (!Object.values(radarData).some(value => value !== undefined)) return undefined;
+
+  return {
+    academic: radarData.academic || 0,
+    employment: radarData.employment || 0,
+    facility: radarData.facility || 0,
+    cost: radarData.cost || 0,
+    reputation: radarData.reputation || 0,
+    innovation: radarData.innovation || 0,
+  };
 };
 
-const mapInstitutionRow = (row: InstitutionRow, schoolTypeLabels: SchoolTypeLabelMap): { region: string; institution: Institution } => {
+const toRadarMetricMap = (rows: RadarMetricRow[]): RadarMetricMap => {
+  return rows.reduce<RadarMetricMap>((metrics, row) => {
+    const schoolId = toDisplayString(firstValue(row.school_id, row.schoolId, row.id));
+    const radarData = toRadarData(row);
+    if (!schoolId || !radarData) return metrics;
+
+    metrics[schoolId] = radarData;
+    return metrics;
+  }, {});
+};
+
+const loadRadarMetrics = async (): Promise<RadarMetricMap> => {
+  try {
+    const rows = await selectFromSupabase<RadarMetricRow>(radarMetricsTableName, { select: '*' });
+    return toRadarMetricMap(rows);
+  } catch (error) {
+    console.warn('School radar metrics are unavailable; using radar fields embedded in school rows only.', error);
+    return {};
+  }
+};
+
+const mapInstitutionRow = (
+  row: InstitutionRow,
+  schoolTypeLabels: SchoolTypeLabelMap,
+  radarMetrics: RadarMetricMap
+): { region: string; institution: Institution } => {
   const country = firstValue(row.country, row.country_name, row.countryName, row.raw_country, row.rawCountry, row.country_code);
   const city = firstValue(row.city, row.city_name, row.cityName);
   const location = String(firstValue(row.location, [city, country].filter(Boolean).join(', '), country, '未知地区'));
@@ -279,14 +328,18 @@ const mapInstitutionRow = (row: InstitutionRow, schoolTypeLabels: SchoolTypeLabe
       featureTags,
       strengthDisciplines,
       alumniNetwork: toDisplayString(firstValue(row.alumniNetwork, row.alumni_network)),
-      radarData: toRadarData(row),
+      radarData: radarMetrics[id] || toRadarData(row),
     },
   };
 };
 
-const groupInstitutionRows = (rows: InstitutionRow[], schoolTypeLabels: SchoolTypeLabelMap): InstitutionData => {
+const groupInstitutionRows = (
+  rows: InstitutionRow[],
+  schoolTypeLabels: SchoolTypeLabelMap,
+  radarMetrics: RadarMetricMap
+): InstitutionData => {
   return rows.reduce<InstitutionData>((groups, row) => {
-    const { region, institution } = mapInstitutionRow(row, schoolTypeLabels);
+    const { region, institution } = mapInstitutionRow(row, schoolTypeLabels, radarMetrics);
     groups[region] = groups[region] || [];
     groups[region].push(institution);
     return groups;
@@ -297,12 +350,13 @@ export async function loadInstitutionData(): Promise<InstitutionData> {
   if (!isSupabaseConfigured) return INSTITUTIONS_DATA;
 
   try {
-    const [rows, schoolTypeLabels] = await Promise.all([
+    const [rows, schoolTypeLabels, radarMetrics] = await Promise.all([
       selectFromSupabase<InstitutionRow>(tableName, { select: '*' }),
       loadSchoolTypeLabels(),
+      loadRadarMetrics(),
     ]);
     if (!rows.length) return INSTITUTIONS_DATA;
-    return groupInstitutionRows(rows, schoolTypeLabels);
+    return groupInstitutionRows(rows, schoolTypeLabels, radarMetrics);
   } catch (error) {
     console.warn('Falling back to local institution data.', error);
     return INSTITUTIONS_DATA;

@@ -15,6 +15,7 @@ export default defineConfig(({mode}) => {
       'process.env.SUPABASE_INSTITUTIONS_TABLE': JSON.stringify(env.SUPABASE_INSTITUTIONS_TABLE || 'schools'),
       'process.env.SUPABASE_SCHOOL_TYPES_TABLE': JSON.stringify(env.SUPABASE_SCHOOL_TYPES_TABLE || 'school_types'),
       'process.env.SUPABASE_PROGRAMS_TABLE': JSON.stringify(env.SUPABASE_PROGRAMS_TABLE || 'programs'),
+      'process.env.SUPABASE_SCHOOL_RADAR_METRICS_TABLE': JSON.stringify(env.SUPABASE_SCHOOL_RADAR_METRICS_TABLE || 'school_radar_metrics'),
     },
     resolve: {
       alias: {
