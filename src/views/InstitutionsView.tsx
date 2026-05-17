@@ -43,9 +43,263 @@ const institutionTagLabelMap: Record<string, string> = {
   music: '音乐',
 };
 
+const regionTagLabelMap: Record<string, string> = {
+  us_south_southwest: '美国南部与西南',
+  us_midwest_flagship: '美国中西部旗舰院校',
+  us_california_flagship: '美国加州旗舰院校',
+  us_northeast_top: '美国东北部重点院校',
+  nordics: '北欧',
+  other_europe: '欧洲其他地区',
+  other_africa: '非洲其他地区',
+  other_asia: '亚洲其他地区',
+  other_south_america: '南美其他地区',
+};
+
+const strengthCategoryRules = [
+  {
+    label: '视觉艺术 / 纯艺',
+    patterns: [
+      /fine arts?/i,
+      /visual arts?/i,
+      /studio art/i,
+      /painting/i,
+      /drawing/i,
+      /sculpt/i,
+      /printmaking/i,
+      /engraving/i,
+      /plastic arts?/i,
+      /conceptual art/i,
+      /installation/i,
+      /life drawing/i,
+      /carving/i,
+      /book arts?/i,
+      /contemporary art practice/i,
+      /studio practice/i,
+      /artistic research/i,
+      /practice-led/i,
+      /\bmfa\b/i,
+    ],
+  },
+  {
+    label: '设计与视觉传达',
+    patterns: [
+      /\bdesign\b/i,
+      /graphic/i,
+      /visual communication/i,
+      /communication design/i,
+      /visual design/i,
+      /information design/i,
+      /illustration/i,
+      /advertising arts?/i,
+      /art direction/i,
+      /communication art/i,
+      /design studies/i,
+      /applied design/i,
+      /integrated design/i,
+    ],
+  },
+  {
+    label: '建筑 / 空间 / 室内',
+    patterns: [
+      /architecture/i,
+      /interior/i,
+      /spatial/i,
+      /urban/i,
+      /landscape/i,
+      /city planning/i,
+      /building science/i,
+      /construction management/i,
+    ],
+  },
+  {
+    label: '产品 / 工业 / 交通设计',
+    patterns: [
+      /product design/i,
+      /industrial design/i,
+      /transportation design/i,
+      /furniture/i,
+      /3d design/i,
+      /computer-aided design/i,
+    ],
+  },
+  {
+    label: '时尚 / 纺织 / 配饰',
+    patterns: [
+      /fashion/i,
+      /textile/i,
+      /apparel/i,
+      /footwear/i,
+      /accessor/i,
+      /fiber/i,
+    ],
+  },
+  {
+    label: '数字媒体 / 交互 / 新媒体',
+    patterns: [
+      /digital/i,
+      /new media/i,
+      /interactive/i,
+      /interaction/i,
+      /multimedia/i,
+      /computation/i,
+      /technology in art/i,
+      /time-based/i,
+      /video and media/i,
+      /games?/i,
+      /media arts?/i,
+    ],
+  },
+  {
+    label: '电影 / 动画 / 影视',
+    patterns: [
+      /film/i,
+      /cinema/i,
+      /screen/i,
+      /television/i,
+      /\btv\b/i,
+      /motion picture/i,
+      /broadcasting/i,
+      /filmmaking/i,
+      /cinematography/i,
+      /screenwriting/i,
+      /animation/i,
+      /visual effects/i,
+      /audiovisual/i,
+    ],
+  },
+  {
+    label: '摄影 / 影像',
+    patterns: [
+      /photography/i,
+      /image arts?/i,
+    ],
+  },
+  {
+    label: '表演 / 戏剧 / 舞蹈',
+    patterns: [
+      /performing/i,
+      /performance/i,
+      /theatre/i,
+      /theater/i,
+      /drama/i,
+      /dance/i,
+      /acting/i,
+      /stage/i,
+      /scenography/i,
+      /opera/i,
+    ],
+  },
+  {
+    label: '音乐 / 声音艺术',
+    patterns: [
+      /music/i,
+      /sound/i,
+      /ethnomusicology/i,
+      /composition/i,
+      /conservatorium/i,
+    ],
+  },
+  {
+    label: '艺术史 / 策展 / 理论',
+    patterns: [
+      /art history/i,
+      /history of art/i,
+      /curatorial/i,
+      /curation/i,
+      /museum/i,
+      /visual culture/i,
+      /art theory/i,
+      /criticism/i,
+      /conservation/i,
+      /restoration/i,
+      /heritage/i,
+      /asian art/i,
+      /american art/i,
+      /modern and contemporary/i,
+    ],
+  },
+  {
+    label: '工艺 / 材料 / 陶瓷',
+    patterns: [
+      /ceramic/i,
+      /pottery/i,
+      /craft/i,
+      /material/i,
+      /jewel/i,
+      /glass/i,
+      /traditional/i,
+      /calligraphy/i,
+    ],
+  },
+  {
+    label: '艺术教育 / 艺术治疗',
+    patterns: [
+      /education/i,
+      /teacher training/i,
+      /therap/i,
+    ],
+  },
+  {
+    label: '传媒 / 新闻 / 出版',
+    patterns: [
+      /journalism/i,
+      /publishing/i,
+      /media studies/i,
+      /communication studies/i,
+      /communications/i,
+      /mass communication/i,
+      /social communication/i,
+      /advertising & pr/i,
+    ],
+  },
+  {
+    label: '创意产业 / 管理',
+    patterns: [
+      /business/i,
+      /management/i,
+      /creative industries/i,
+      /economics/i,
+      /public administration/i,
+      /cultural management/i,
+    ],
+  },
+  {
+    label: '综合艺术 / 跨学科',
+    patterns: [
+      /art and design/i,
+      /art & design/i,
+      /interdisciplinary/i,
+      /multi-disciplinary/i,
+      /multidisciplinary/i,
+      /creative arts/i,
+      /applied arts/i,
+      /arts and humanities/i,
+      /visual and performing/i,
+      /fine and applied/i,
+    ],
+  },
+] as const;
+
 const toInstitutionTagLabel = (tag: string) => {
   const key = tag.trim().toLowerCase().replace(/[\s-]+/g, '_');
   return institutionTagLabelMap[key] || tag;
+};
+
+const toRegionTagLabel = (tag: string) => regionTagLabelMap[tag] || tag;
+
+const toStrengthDisciplineCategories = (strengths: string[] | undefined) => {
+  const categories = new Set<string>();
+  (strengths || []).forEach(strength => {
+    strengthCategoryRules.forEach(rule => {
+      if (rule.patterns.some(pattern => pattern.test(strength))) {
+        categories.add(rule.label);
+      }
+    });
+  });
+
+  return strengthCategoryRules
+    .map(rule => rule.label)
+    .filter(category => categories.has(category));
 };
 
 const toUniqueOptions = (values: Array<string | undefined>) => {
@@ -62,9 +316,10 @@ interface FilterSelectProps {
   value: string;
   options: string[];
   onChange: (value: string) => void;
+  getOptionLabel?: (value: string) => string;
 }
 
-const FilterSelect = ({ label, value, options, onChange }: FilterSelectProps) => (
+const FilterSelect = ({ label, value, options, onChange, getOptionLabel = value => value }: FilterSelectProps) => (
   <label className="min-w-[9rem] flex-1 md:flex-none space-y-2">
     <span className="text-[8px] md:text-[9px] font-black text-ink/30 uppercase tracking-[0.25em]">{label}</span>
     <select
@@ -75,7 +330,7 @@ const FilterSelect = ({ label, value, options, onChange }: FilterSelectProps) =>
     >
       <option value="">全部{label}</option>
       {options.map(option => (
-        <option key={option} value={option}>{option}</option>
+        <option key={option} value={option}>{getOptionLabel(option)}</option>
       ))}
     </select>
   </label>
@@ -94,7 +349,11 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
   const hasAdvancedFilters = !!(regionTagFilter || schoolTypeFilter || strengthFilter);
   const regionTagOptions = useMemo(() => toUniqueOptions(allInstitutions.map(inst => inst.regionTag)), [allInstitutions]);
   const schoolTypeOptions = useMemo(() => toUniqueOptions(allInstitutions.map(inst => inst.schoolType)), [allInstitutions]);
-  const strengthOptions = useMemo(() => toUniqueArrayOptions(allInstitutions.map(inst => inst.strengthDisciplines || inst.majorStrengths)), [allInstitutions]);
+  const strengthOptions = useMemo(() => {
+    return toUniqueArrayOptions(
+      allInstitutions.map(inst => toStrengthDisciplineCategories(inst.strengthDisciplines || inst.majorStrengths))
+    );
+  }, [allInstitutions]);
 
   useEffect(() => {
     if (regions.length && !regions.includes(activeRegion)) {
@@ -114,7 +373,8 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
       const matchesRegionTag = !regionTagFilter || inst.regionTag === regionTagFilter;
       const matchesSchoolType = !schoolTypeFilter || inst.schoolType === schoolTypeFilter;
       const strengths = inst.strengthDisciplines || inst.majorStrengths || [];
-      const matchesStrength = !strengthFilter || strengths.includes(strengthFilter);
+      const strengthCategories = toStrengthDisciplineCategories(strengths);
+      const matchesStrength = !strengthFilter || strengthCategories.includes(strengthFilter);
 
       return matchesSearch && matchesRegionTag && matchesSchoolType && matchesStrength;
     });
@@ -231,7 +491,7 @@ export const InstitutionsView = ({ institutionsData = INSTITUTIONS_DATA, onInsti
           </div>
 
           <div className="flex flex-col md:flex-row md:flex-wrap gap-3">
-            <FilterSelect label="区域标签" value={regionTagFilter} options={regionTagOptions} onChange={setRegionTagFilter} />
+            <FilterSelect label="区域标签" value={regionTagFilter} options={regionTagOptions} onChange={setRegionTagFilter} getOptionLabel={toRegionTagLabel} />
             <FilterSelect label="院校类型" value={schoolTypeFilter} options={schoolTypeOptions} onChange={setSchoolTypeFilter} />
             <FilterSelect label="优势学科" value={strengthFilter} options={strengthOptions} onChange={setStrengthFilter} />
           </div>
